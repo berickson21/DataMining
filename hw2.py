@@ -36,14 +36,12 @@ def scatter_plot(table, xIndex, yIndex, xLabel, yLabel):
     pyplot.savefig('fig8.pdf')  # save graph
 
 
-
 def pie_chart(table, index):
 
     freq = frequency(table, index)
 
     total = sum(freq[1])  # get total (probably should be length)
     percents = []
-
 
     for item in freq[1]:
         percents.append(item / float(total))
@@ -215,8 +213,7 @@ def main():
     strip_char(table, 9)
 
     cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44]
-
-    
+    freq =
 
     strip_char(table, 0)
     box_plot(table, 6, 'Year', 'MPG')
