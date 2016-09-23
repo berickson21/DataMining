@@ -8,7 +8,7 @@ import numpy as numpy
 from hw1 import read_csv, get_column, get_column_as_floats
 
 
-def scatter_plot(table, xIndex, yIndex, xLabel, yLabel):
+def scatter_plot(table, xIndex, yIndex):
 
     ys = []
     xs = []
@@ -23,8 +23,8 @@ def scatter_plot(table, xIndex, yIndex, xLabel, yLabel):
     pyplot.xlim(int(min(xs)) * 0.95, int(max(xs) * 1.05))  # set x bounds on graph
     pyplot.ylim(int(min(ys)) * 0.95, int(max(ys) * 1.05))  # set y bounds on graph
 
-    pyplot.xlabel(xLabel)  # x label
-    pyplot.ylabel(yLabel)  # y label
+    pyplot.xlabel('Year')  # x label
+    pyplot.ylabel('MPG')  # y label
 
     pyplot.grid()
 
@@ -63,7 +63,7 @@ def strip_char(table, index):
     pyplot.savefig('fig4.pdf')
 
 
-def box_plot(table, index, xLabel, yLabel):
+def box_plot(table, index):
 
     pyplot.figure()
 
@@ -71,8 +71,8 @@ def box_plot(table, index, xLabel, yLabel):
     xrng = numpy.arange(len(data[0]), 1)
 
     pyplot.xticks(xrng, data[0])
-    pyplot.xlabel(xLabel)
-    pyplot.ylabel(yLabel)
+    pyplot.xlabel('Year')
+    pyplot.ylabel('MPG')
     pyplot.boxplot(data[1])
 
     pyplot.savefig('fig7.pdf')
@@ -174,8 +174,8 @@ def main():
     pie_char(freq)
 
     strip_char(table, 0)
-    box_plot(table, 6, 'Year', 'MPG')
-    scatter_plot(table, 6, 0, 'Year', 'MPG')
+    box_plot(table, 6)
+    scatter_plot(table, 6, 0)
 
 
 main()
