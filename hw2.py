@@ -11,7 +11,7 @@ COLUMN_NAMES = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
                 'Acceleration', 'Model Year', 'Orgin', 'Car Name', 'MSRP']
 
 
-def scatter_plot(table, xIndex, yIndex):
+def scatter_plot(table, xIndex, yIndex, xLabel, yLabel):
 
     ys = []
     xs = []
@@ -26,8 +26,8 @@ def scatter_plot(table, xIndex, yIndex):
     pyplot.xlim(int(min(xs)) * 0.95, int(max(xs) * 1.05))  # set x bounds on graph
     pyplot.ylim(int(min(ys)) * 0.95, int(max(ys) * 1.05))  # set y bounds on graph
 
-    pyplot.xlabel('Year')  # x label
-    pyplot.ylabel('MPG')  # y label
+    pyplot.xlabel(xLabel)  # x label
+    pyplot.ylabel(yLabel)  # y label
 
     pyplot.grid()
 
@@ -66,7 +66,7 @@ def strip_char(table, index):
     pyplot.savefig('fig4.pdf')
 
 
-def box_plot(table, index):
+def box_plot(table, index, xLabel, yLabel):
 
     pyplot.figure()
 
@@ -74,8 +74,8 @@ def box_plot(table, index):
     xrng = numpy.arange(len(data[0]), 1)
 
     pyplot.xticks(xrng, data[0])
-    pyplot.xlabel('Year')
-    pyplot.ylabel('MPG')
+    pyplot.xlabel(xLabel)
+    pyplot.ylabel(yLabel)
     pyplot.boxplot(data[1])
 
     pyplot.savefig('fig7.pdf')
@@ -119,6 +119,17 @@ def frequency(table, index):
 
     return cats, freq
 
+def create_histogram(table, index, xLabel, yLabel):
+    column = get_column(table, index)
+    column.sort()
+
+    cutoffs = [13, 14, 16, 19, 23, 26, 30, 36, 44, 45]
+
+    pyplot.figure()
+
+    pyplot.hist(cut_off_frequency(table, index, cutoffs), bins=10, 'label=EPA MPG Categories')
+
+    pyplot.savefig('fig8.pdf')
 
 def group_by(table, index):
 
@@ -177,8 +188,8 @@ def main():
     pie_char(freq)
 
     strip_char(table, 0)
-    box_plot(table, 6)
-    scatter_plot(table, 6, 0)
+    box_plot(table, 6, 'Year', 'MPG')
+    scatter_plot(table, 6, 0, 'Year', 'MPG')
 
 
 main()
