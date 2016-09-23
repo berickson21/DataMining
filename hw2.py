@@ -7,6 +7,9 @@ import numpy as numpy
 
 from hw1 import read_csv, get_column, get_column_as_floats
 
+COLUMN_NAMES = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
+                'Acceleration', 'Model Year', 'Orgin', 'Car Name', 'MSRP']
+
 
 def scatter_plot(table, xIndex, yIndex):
 
