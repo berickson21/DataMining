@@ -116,6 +116,17 @@ def frequency(table, index):
 
     return cats, freq
 
+def create_histogram(table, index, xLabel, yLabel):
+    column = get_column(table, index)
+    column.sort()
+
+    cutoffs = [13, 14, 16, 19, 23, 26, 30, 36, 44, 45]
+
+    pyplot.figure()
+
+    pyplot.hist(cut_off_frequency(table, index, cutoffs), bins=10, 'label=EPA MPG Categories')
+
+    pyplot.savefig('fig8.pdf')
 
 def group_by(table, index):
 
