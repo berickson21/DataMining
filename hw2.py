@@ -36,18 +36,25 @@ def scatter_plot(table, xIndex, yIndex, xLabel, yLabel):
     pyplot.savefig('fig8.pdf')  # save graph
 
 
-def pie_char(freq):
+
+def pie_chart(table, index):
+
+    freq = frequency(table, index)
 
     total = sum(freq[1])  # get total (probably should be length)
     percents = []
 
+
     for item in freq[1]:
         percents.append(item / float(total))
 
-    pyplot.figure()
-    pyplot.pie(percents, labels=freq[0])
+    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
 
-    pyplot.savefig('fig3.pdf')
+    pyplot.figure()
+    pyplot.title('Total Number of cars by ' + COLUMN_NAMES[index])
+    pyplot.pie(percents, labels=freq[0], autopct='%1.1f%%',  colors=colors)
+
+    pyplot.savefig('step_2_' + COLUMN_NAMES[index] + '.pdf')
 
 
 def strip_char(table, index):
@@ -57,13 +64,16 @@ def strip_char(table, index):
 
     pyplot.figure()
 
+    pyplot.title(COLUMN_NAMES[index] + ' of all Cars')
+    pyplot.xlabel(COLUMN_NAMES[index])
+
     xrng = numpy.arange(len(column))
     pyplot.xticks(xrng, column)
 
     pyplot.gca().get_yaxis().set_visible(False)
     pyplot.plot(column, y, marker='.', markersize=50, alpha=0.2)
 
-    pyplot.savefig('fig4.pdf')
+    pyplot.savefig('step_3_' + COLUMN_NAMES[index] + '.pdf')
 
 
 def box_plot(table, index, xLabel, yLabel):
@@ -81,7 +91,10 @@ def box_plot(table, index, xLabel, yLabel):
     pyplot.savefig('fig7.pdf')
 
 
-def frequency_chart(freq):
+def frequency_chart(freq, index):
+
+    pyplot.figure()
+
     xs = freq[0]
     ys = freq[1]
 
@@ -91,11 +104,14 @@ def frequency_chart(freq):
     pyplot.bar(xrng, ys, 0.5, alpha=0.75, align='center', color='r')
 
     pyplot.xticks(xrng, freq[0])
-    pyplot.yticks(yrng)
 
-    pyplot.grid(True)
+    pyplot.title('Number of Cars by ' + COLUMN_NAMES[index])
+    pyplot.xlabel(COLUMN_NAMES[index])
+    pyplot.ylabel('Count')
 
-    pyplot.savefig('fig2.pdf')
+    pyplot.grid(False)
+
+    pyplot.savefig('step_1_' + COLUMN_NAMES[index] + '.pdf')
 
 
 def frequency(table, index):
@@ -119,6 +135,7 @@ def frequency(table, index):
 
     return cats, freq
 
+
 def create_histogram(table, index, xLabel, yLabel):
     column = get_column(table, index)
     column.sort()
@@ -127,7 +144,7 @@ def create_histogram(table, index, xLabel, yLabel):
 
     pyplot.figure()
 
-    pyplot.hist(cut_off_frequency(table, index, cutoffs), bins=10, 'label=EPA MPG Categories')
+    pyplot.hist(cut_off_frequency(table, index, cutoffs), bins=10, label='EPA MPG Categories')
 
     pyplot.savefig('fig8.pdf')
 
@@ -171,9 +188,9 @@ def cut_off_frequency(table, index, cutoffs):
     col = get_column_as_floats(table, index)
 
     for item in col:
-        for index in range(len(cutoffs)):
-            if item <= cutoffs[index]:
-                freq[index] += 1
+        for i in range(len(cutoffs)):
+            if item <= cutoffs[i]:
+                freq[i] += 1
                 break
 
     return cutoffs, freq
@@ -183,9 +200,23 @@ def main():
 
     table = read_csv('auto-data.txt')
 
-    frequency_chart(frequency(table, 0))
-    freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
-    pie_char(freq)
+    frequency_chart(frequency(table, 1), 1)
+    frequency_chart(frequency(table, 6), 6)
+    frequency_chart(frequency(table, 7), 7)
+
+    pie_chart(table, 1)
+    pie_chart(table, 6)
+    pie_chart(table, 7)
+
+    strip_char(table, 0)
+    strip_char(table, 2)
+    strip_char(table, 4)
+    strip_char(table, 5)
+    strip_char(table, 9)
+
+    cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44]
+
+    
 
     strip_char(table, 0)
     box_plot(table, 6, 'Year', 'MPG')
