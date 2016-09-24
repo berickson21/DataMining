@@ -89,9 +89,11 @@ def box_plot(table, index, xLabel, yLabel):
     pyplot.savefig('fig7.pdf')
 
 
-def frequency_chart(freq, index):
+def frequency_chart(table, index):
 
     pyplot.figure()
+
+    freq = frequency(table, index)
 
     xs = freq[0]
     ys = freq[1]
@@ -146,6 +148,7 @@ def create_histogram(table, index, xLabel, yLabel):
 
     pyplot.savefig('fig8.pdf')
 
+
 def group_by(table, index):
 
     dict = {}
@@ -185,39 +188,70 @@ def cut_off_frequency(table, index, cutoffs):
     cutoffs.sort()
     col = get_column_as_floats(table, index)
 
+    print len(col)
+
     for item in col:
         for i in range(len(cutoffs)):
             if item <= cutoffs[i]:
                 freq[i] += 1
                 break
 
-    return cutoffs, freq
+    return freq
+
+def transform_frequency_chart(table, index, cutoffs, part):
+
+    freq = cut_off_frequency(table, 0, cutoffs)
+    xLabels = [i + 1 for i in range(len(freq))]
+
+    pyplot.figure()
+
+    xrng = numpy.arange(len(freq))
+
+    pyplot.xticks(xrng, xLabels)
+    pyplot.ylabel('Count')
+    pyplot.xlabel(COLUMN_NAMES[index])
+    pyplot.bar(xrng, freq, alpha=.75, width=0.5, align='center', color='r')
+    pyplot.savefig('step_4_' + COLUMN_NAMES[index] + part + '.pdf')
 
 
 def main():
 
     table = read_csv('auto-data.txt')
 
-    frequency_chart(frequency(table, 1), 1)
-    frequency_chart(frequency(table, 6), 6)
-    frequency_chart(frequency(table, 7), 7)
+    # Step 1
+    frequency_chart(table, 1)
+    frequency_chart(table, 6)
+    frequency_chart(table, 7)
 
+    # Step 2
     pie_chart(table, 1)
     pie_chart(table, 6)
     pie_chart(table, 7)
 
+    # Step 3
     strip_char(table, 0)
     strip_char(table, 2)
     strip_char(table, 4)
     strip_char(table, 5)
     strip_char(table, 9)
 
-    cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44]
-    freq =
+    # Step 4 Part A
+    cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44, 100]
+    transform_frequency_chart(table, 0, cuts, 'A')
 
+    # Step 4 Part B
+    cuts = get_cutoffs(table, 0, 5)
+    transform_frequency_chart(table, 0, cuts, 'B')
+
+    # Step 7
+    
+    # Other
     strip_char(table, 0)
-    box_plot(table, 6, 'Year', 'MPG')
+
     scatter_plot(table, 6, 0, 'Year', 'MPG')
 
+    # Step 8
+
+    box_plot(table, 6, 'Year', 'MPG')
 
 main()
