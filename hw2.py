@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import matplotlib
 
 matplotlib.use('pdf')
@@ -8,7 +9,7 @@ import numpy as numpy
 from hw1 import read_csv, get_column, get_column_as_floats
 
 COLUMN_NAMES = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
-                'Acceleration', 'Model Year', 'Orgin', 'Car Name', 'MSRP']
+                'Acceleration', 'Model Year', 'Origin', 'Car Name', 'MSRP']
 
 
 def scatter_plot(table, xIndex, yIndex, xLabel, yLabel):
@@ -46,7 +47,7 @@ def pie_chart(table, index):
     for item in freq[1]:
         percents.append(item / float(total))
 
-    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
+    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'lightblue']
 
     pyplot.figure()
     pyplot.title('Total Number of cars by ' + COLUMN_NAMES[index])
@@ -65,28 +66,29 @@ def strip_char(table, index):
     pyplot.title(COLUMN_NAMES[index] + ' of all Cars')
     pyplot.xlabel(COLUMN_NAMES[index])
 
-    xrng = numpy.arange(len(column))
-    pyplot.xticks(xrng, column)
+    #xrng = numpy.arange(len(column))
+    #pyplot.xticks(xrng, column)
 
     pyplot.gca().get_yaxis().set_visible(False)
-    pyplot.plot(column, y, marker='.', markersize=50, alpha=0.2)
+    # pyplot.plot(column, y, marker='.', markersize=50, alpha=0.2)
+    pyplot.scatter(column, y, marker='.', alpha=0.2, s=5000, color='b')
 
     pyplot.savefig('step_3_' + COLUMN_NAMES[index] + '.pdf')
 
 
-def box_plot(table, index, xLabel, yLabel):
+def box_plot(table, xIndex, yIndex):
 
     pyplot.figure()
 
-    data = group_by(table, index)
+    data = group_by(table, xIndex)
     xrng = numpy.arange(len(data[0]), 1)
 
     pyplot.xticks(xrng, data[0])
-    pyplot.xlabel(xLabel)
-    pyplot.ylabel(yLabel)
+    pyplot.xlabel(COLUMN_NAMES[xIndex])
+    pyplot.ylabel(COLUMN_NAMES[yIndex])
     pyplot.boxplot(data[1])
 
-    pyplot.savefig('fig7.pdf')
+    pyplot.savefig('step_8.pdf')
 
 
 def frequency_chart(table, index):
@@ -101,7 +103,7 @@ def frequency_chart(table, index):
     xrng = numpy.arange(len(xs))
     yrng = numpy.arange(max(ys) + 2)
 
-    pyplot.bar(xrng, ys, 0.5, alpha=0.75, align='center', color='r')
+    pyplot.bar(xrng, ys, 0.5, alpha=0.75, align='center', color='lightblue')
 
     pyplot.xticks(xrng, freq[0])
 
@@ -183,12 +185,9 @@ def get_cutoffs(table, index, num):
 
 def cut_off_frequency(table, index, cutoffs):
 
-    freq = [0]*len(cutoffs)
+    freq = [0]*(len(cutoffs))
 
-    cutoffs.sort()
     col = get_column_as_floats(table, index)
-
-    print len(col)
 
     for item in col:
         for i in range(len(cutoffs)):
@@ -198,20 +197,38 @@ def cut_off_frequency(table, index, cutoffs):
 
     return freq
 
+
 def transform_frequency_chart(table, index, cutoffs, part):
 
     freq = cut_off_frequency(table, 0, cutoffs)
-    xLabels = [i + 1 for i in range(len(freq))]
+    # xLabels = [i + 1 for i in range(len(freq))]
 
+    labels = make_labels_from_cutoffs(cutoffs)
     pyplot.figure()
 
     xrng = numpy.arange(len(freq))
 
-    pyplot.xticks(xrng, xLabels)
+    pyplot.xticks(xrng, labels)
     pyplot.ylabel('Count')
     pyplot.xlabel(COLUMN_NAMES[index])
+    pyplot.title('Total Number of Cars by Equal Width Rankings of ' + COLUMN_NAMES[index])
     pyplot.bar(xrng, freq, alpha=.75, width=0.5, align='center', color='r')
     pyplot.savefig('step_4_' + COLUMN_NAMES[index] + part + '.pdf')
+
+
+def make_labels_from_cutoffs(cutoffs):
+
+    labels = []
+
+    for index in range(len(cutoffs)):
+        if index == 0:
+            labels.append('$\leq$' + str(cutoffs[index]))
+        elif index == len(cutoffs)-1:
+            labels.append('$\geq$' + str(cutoffs[index]))
+        else:
+            labels.append(str(cutoffs[index]) + '-' + str(cutoffs[index + 1] - 1))
+
+    return labels
 
 
 def main():
@@ -236,22 +253,22 @@ def main():
     strip_char(table, 9)
 
     # Step 4 Part A
-    cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44, 100]
+    cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44]
     transform_frequency_chart(table, 0, cuts, 'A')
+
+    make_labels_from_cutoffs(cuts)
 
     # Step 4 Part B
     cuts = get_cutoffs(table, 0, 5)
     transform_frequency_chart(table, 0, cuts, 'B')
 
-    # Step 7
-    
-    # Other
-    strip_char(table, 0)
+    # Step 5
 
-    scatter_plot(table, 6, 0, 'Year', 'MPG')
+    # Step 6
+
+    # Step 7
 
     # Step 8
-
-    box_plot(table, 6, 'Year', 'MPG')
+    box_plot(table, 6, 0)
 
 main()
