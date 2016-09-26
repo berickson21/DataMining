@@ -171,6 +171,31 @@ def group_by(table, index):
     return keys, values
 
 
+def group(table, index):
+
+    dict = {}
+
+    for row in table:
+        if row[index] != 'NA':
+            if row[index] in dict:
+                dict[row[index]].append(row)
+            else:
+                dict.update({row[index]: [row]})
+
+    return sort_dict(dict)[0]
+
+
+def sort_dict(dictionary):
+
+    keys = sorted(dictionary.keys())
+    values = []
+
+    for key in keys:
+        values.append(dictionary[key])
+
+    return values, keys
+
+
 def get_cutoffs(table, index, num):
 
     col = get_column_as_floats(table, index)
@@ -211,7 +236,12 @@ def transform_frequency_chart(table, index, cutoffs, part):
     pyplot.xticks(xrng, labels)
     pyplot.ylabel('Count')
     pyplot.xlabel(COLUMN_NAMES[index])
-    pyplot.title('Total Number of Cars by Equal Width Rankings of ' + COLUMN_NAMES[index])
+
+    if part == 'A':
+        pyplot.title('Total Number of Cars by Equal Width Rankings of ' + COLUMN_NAMES[index])
+    else:
+        pyplot.title('Total Number of Cars by Equal Width Rankings of ' + COLUMN_NAMES[index])
+
     pyplot.bar(xrng, freq, alpha=.75, width=0.5, align='center', color='r')
     pyplot.savefig('step_4_' + COLUMN_NAMES[index] + part + '.pdf')
 
@@ -229,6 +259,41 @@ def make_labels_from_cutoffs(cutoffs):
             labels.append(str(cutoffs[index]) + '-' + str(cutoffs[index + 1] - 1))
 
     return labels
+
+
+def divided_frequency_chart(table, index1, index2):
+
+    sub1 = group(table, index2)
+    dict = {}
+
+    for sub in sub1:
+        g = group(sub, index1)
+        key = sub[0][index2]
+        freq = []
+        for item in g:
+            freq.append(len(item))
+        dict.update({key: freq})
+
+    dict = sort_dict(dict)
+    xLables = dict[0]
+    values = [i for i in range(70, 80, 1)]
+    print values
+    pyplot.figure()
+
+    index = numpy.arange(10)
+
+    pyplot.bar(index, xLables[0], width=.3, alpha=.5, color='lightblue', label='US')
+    pyplot.bar(index+.3, xLables[1], width=.3, alpha=.5, color='red', label='Europe')
+    pyplot.bar(index+.6, xLables[2], width=.3, alpha=.5, color='gold', label='Japan')
+
+    pyplot.xlabel('Model Year')
+    pyplot.ylabel('Count')
+    pyplot.title('Total number of cars by Model Year and Country of Origin')
+    pyplot.xticks(index + 0.5, values)
+    pyplot.legend()
+
+    pyplot.savefig('step_8_partB.pdf')
+
 
 
 def main():
@@ -270,5 +335,6 @@ def main():
 
     # Step 8
     box_plot(table, 6, 0)
+    divided_frequency_chart(table, 6, 7)
 
 main()
