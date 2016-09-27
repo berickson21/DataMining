@@ -294,8 +294,6 @@ def divided_frequency_chart(table, index1, index2):
 
     pyplot.savefig('step_8_partB.pdf')
 
-
-
 def main():
 
     table = read_csv('auto-data.txt')
@@ -320,8 +318,6 @@ def main():
     # Step 4 Part A
     cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44]
     transform_frequency_chart(table, 0, cuts, 'A')
-
-    make_labels_from_cutoffs(cuts)
 
     # Step 4 Part B
     cuts = get_cutoffs(table, 0, 5)
