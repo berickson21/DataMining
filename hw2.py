@@ -248,6 +248,7 @@ def get_regression_lines(table):
     pyplot.scatter(xs, ys)
     pyplot.plot ([slope * x + intercept for x in range(0, int(max(xs)))], color='r')
     pyplot.savefig('step_7_Weight.pdf')
+    
 
 
 def transform_frequency_chart(table, index, cutoffs, part):
