@@ -31,12 +31,12 @@ def scatter_plot(table, xIndex, yIndex):
 
     pyplot.xlabel(COLUMN_NAMES[xIndex])  # x label
     pyplot.ylabel(COLUMN_NAMES[yIndex])  # y label
-
+    pyplot.title(COLUMN_NAMES[xIndex] + ' vs ' + COLUMN_NAMES[yIndex])
     pyplot.grid()
 
     pyplot.scatter(xs, ys, color='g')
 
-    pyplot.savefig('step_6_'+COLUMN_NAMES[xIndex]+'.pdf')  # save graph
+    pyplot.savefig('step_6_'+COLUMN_NAMES[xIndex] + '_vs_' + COLUMN_NAMES[yIndex]+'.pdf')  # save graph
 
 
 def pie_chart(table, index):
@@ -151,7 +151,7 @@ def historgram_continuous(table, index):
 
     pyplot.xlabel(COLUMN_NAMES[index])  # x label
     pyplot.ylabel('Frequency')  # y label
-
+    pyplot.title('Distribution of ' + COLUMN_NAMES[index] + ' Values')
     pyplot.hist(column, bins=10, label='EPA MPG Categories')
     pyplot.savefig('step_5_'+COLUMN_NAMES[index]+'.pdf')  # save graph
 
@@ -228,7 +228,7 @@ def regression_line(table, index_x, index_y):
     return stats.linregress(list_x, list_y)
 
 
-def get_regression_lines(table):
+def get_regression_lines(table, xIndex, yIndex):
 
     r_line_disp = regression_line(table, 2, 0)
     r_line_horses = regression_line(table, 3, 0)
@@ -236,13 +236,19 @@ def get_regression_lines(table):
     r_line_msrp = regression_line(table, 9, 0)
 
     slope, intercept, r_value, p_value, slope_std_error = stats.linregress(numpy.asarray(get_column_as_floats(table, 4)), numpy.asarray(get_column_as_floats(table, 0)))
-    xs = get_column_as_floats(table, 4)
-    ys = get_column_as_floats(table, 0)
+
+    xs = get_column_as_floats(table, xIndex)
+    ys = get_column_as_floats(table, yIndex)
     pyplot.figure()
+
+    pyplot.xlabel(COLUMN_NAMES[xIndex])
+    pyplot.ylabel(COLUMN_NAMES[yIndex])
+
+    pyplot.title(COLUMN_NAMES[xIndex] + ' vs ' + COLUMN_NAMES[yIndex])
 
     pyplot.scatter(xs, ys)
     pyplot.plot ([slope * x + intercept for x in range(0, int(max(xs)))], color='r')
-    pyplot.savefig('step_7_Weight.pdf')
+    pyplot.savefig('step_7_' + COLUMN_NAMES[xIndex] + '_vs_' + COLUMN_NAMES[yIndex] + '.pdf')
 
 
 def transform_frequency_chart(table, index, cutoffs, part):
@@ -404,7 +410,11 @@ def main():
     scatter_plot(table, 9, 0)
 
     # Step 7
-    get_regression_lines(table)
+    get_regression_lines(table, 2, 0)
+    get_regression_lines(table, 3, 0)
+    get_regression_lines(table, 4, 0)
+    get_regression_lines(table, 9, 0)
+
     pyplot.close("all")
 
     # Step 8
