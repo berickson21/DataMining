@@ -241,6 +241,7 @@ def get_regression_lines(table):
     xs = get_column_as_floats(table, 4)
     ys = get_column_as_floats(table, 0)
     pyplot.figure()
+    print (slope)
 
     pyplot.scatter(xs, ys)
     pyplot.plot ([slope * x + intercept for x in range(0, int(max(xs)))], color='r')
@@ -326,8 +327,7 @@ def divided_frequency_chart(table, index1, index2):
     pyplot.figure()
 
     index = numpy.arange(10)
-    xLables[1].append(0) # FIX
-
+    
 
     pyplot.bar(index, values[0], width=.3, alpha=.5, color='lightblue', label='US')
     pyplot.bar(index+.3, values[1], width=.3, alpha=.5, color='red', label='Europe')
@@ -362,12 +362,9 @@ def main():
 
     table = read_csv('auto-data.txt')
     table = remove_incomplete_rows(table)
-<<<<<<< HEAD
 
     print table[0]
     freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
-=======
->>>>>>> refs/remotes/origin/master
 
     # Step 1
     frequency_chart(table, 1)
@@ -406,10 +403,8 @@ def main():
     historgram_continuous(table, 4)
     historgram_continuous(table, 5)
     historgram_continuous(table, 9)
-<<<<<<< HEAD
-=======
     pyplot.close("all")
->>>>>>> refs/remotes/origin/master
+
 
     # Step 6
     scatter_plot(table, 2, 0)
@@ -417,16 +412,16 @@ def main():
     scatter_plot(table, 4, 0)
     scatter_plot(table, 5, 0)
     scatter_plot(table, 9, 0)
-<<<<<<< HEAD
+
 
     # Step 7
     get_regression_lines(table)
-=======
+
     pyplot.close("all")
 
     # Step 7
     # get_regression_lines(table)
->>>>>>> refs/remotes/origin/master
+
 
     # Step 8
     box_plot(table, 6, 0)
