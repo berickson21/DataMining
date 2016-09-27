@@ -7,7 +7,6 @@ import numpy as numpy
 
 from hw1 import read_csv, get_column, get_column_as_floats
 
-
 from scipy import stats as stats
 
 
@@ -284,11 +283,14 @@ def regression_line(table, index_x, index_y):
 
 
 def get_regression_lines(table):
-    pyplot.figure()
-    r_line_disp = regression_line(table, 2, 0)
-    r_line_horses = regression_line(table, 3, 0)
-    r_line_weight = regression_line(table, 4, 0)
-    r_line_msrp = regression_line(table, 9, 0)
+    table_no_dupes = remove_incomplete_rows(table)
+    r_line_disp = regression_line(table_no_dupes, 2, 0)
+    r_line_horses = regression_line(table_no_dupes, 3, 0)
+    r_line_weight = regression_line(table_no_dupes, 4, 0)
+    r_line_msrp = regression_line(table_no_dupes, 9, 0)
+    pyplot.figure()    
+    pyplot.scatter(table_no_dupes[4], table_no_dupes[0])
+    pyplot.savefig('step_7_Weight.pdf')
 
 
 def transform_frequency_chart(table, index, cutoffs, part):
@@ -426,7 +428,7 @@ def main():
 
     create_histograms_continuous(table) #Step 5
     create_scatterplots(table)          #Step 6
-    # get_regression_lines(table)         #Step 7
+    get_regression_lines(table)         #Step 7
 
     # Step 8
     box_plot(table, 6, 0)
