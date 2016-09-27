@@ -7,6 +7,7 @@ import numpy as numpy
 
 from hw1 import read_csv, get_column, get_column_as_floats
 
+
 from scipy import stats as stats
 
 
@@ -85,13 +86,14 @@ def box_plot(table, xIndex, yIndex):
 
     pyplot.xlabel(COLUMN_NAMES[xIndex])
     pyplot.ylabel(COLUMN_NAMES[yIndex])
+    pyplot.title(COLUMN_NAMES[yIndex] + ' by ' + COLUMN_NAMES[xIndex])
     pyplot.boxplot(data[1])
 
-    pyplot.xlabel(COLUMN_NAMES[6])
-    pyplot.ylabel('Count')
+    pyplot.xlabel(COLUMN_NAMES[xIndex])
+    pyplot.ylabel(COLUMN_NAMES[yIndex])
     pyplot.boxplot(data[1])
 
-    pyplot.savefig('box_plot.pdf')
+    pyplot.savefig('step_8_partA.pdf')
 
 
 def frequency_chart(table, index):
@@ -100,30 +102,11 @@ def frequency_chart(table, index):
 
     freq = frequency(table, index)
 
-# def frequency_chart(freq, index):
-#     xs = freq[0]
-#     ys = freq[1]
-
-#     xrng = numpy.arange(len(xs))
-#     yrng = numpy.arange(max(ys))
-
-#     pyplot.bar(xrng, ys, 0.5, alpha=0.75, align='center', color='r')
-
-#     pyplot.xticks(xrng, freq[0])
-#     pyplot.yticks(yrng)
-#     pyplot.xlabel(COLUMN_NAMES[index])
-#     pyplot.ylabel(COLUMN_NAMES[index])
-#     pyplot.grid(True)
-
-#     pyplot.savefig('frequency_chart.pdf')
-
     xs = freq[0]
     ys = freq[1]
 
-
     xrng = numpy.arange(len(xs))
     yrng = numpy.arange(max(ys))
-
 
     pyplot.bar(xrng, ys, 0.5, alpha=0.75, align='center', color='lightblue')
 
@@ -136,7 +119,6 @@ def frequency_chart(table, index):
     pyplot.grid(False)
 
     pyplot.savefig('step_1_' + COLUMN_NAMES[index] + '.pdf')
-
 
 
 def frequency(table, index):
@@ -160,30 +142,19 @@ def frequency(table, index):
 
     return cats, freq
 
-#
-# def create_histogram(table, index, xLabel, yLabel):
-#     column = get_column(table, index)
-#     column.sort()
-
 
 def historgram_continuous(table, index):
+
     column = get_column_as_floats(table, index)
     column.sort()
 
     pyplot.figure()
 
-    pyplot.hist(column, bins=10)
     pyplot.xlabel(COLUMN_NAMES[index])  # x label
     pyplot.ylabel('Frequency')  # y label
 
-    pyplot.savefig('histogram_'+ COLUMN_NAMES[index]+'.pdf')  # save graph
-
-    pyplot.xlabel(COLUMN_NAMES[index])  # x label
-    pyplot.ylabel('Frequency')  # y label
-
-     # pyplot.hist(cut_off_frequency(table, index, cutoffs), bins=10, label='EPA MPG Categories')
     pyplot.hist(column, bins=10, label='EPA MPG Categories')
-    pyplot.savefig('histogram_'+COLUMN_NAMES[index]+'.pdf')  # save graph
+    pyplot.savefig('step_5_'+COLUMN_NAMES[index]+'.pdf')  # save graph
 
 
 def group_by(table, index):
@@ -203,7 +174,6 @@ def group_by(table, index):
         values.append(dict[key])
 
     return keys, values
-
 
 
 def group(table, index):
@@ -242,22 +212,6 @@ def get_cutoffs(table, index, num):     #Step 4.2
 
     return list(range(min_value + width, max_value+1, width))
 
-# def frequency_bins(table, index, cutoffs):
-
-#     freq = [0]*len(cutoffs)
-#     cutoffs.sort()
-#     col = get_column_as_floats(table, index)
-
-
-#     for item in col:
-#         for i in range(len(cutoffs)):
-#             if item <= cutoffs[i]:
-#                 freq[i] += 1
-#                 break
-#             elif item > max(cutoffs):
-#                 freq[-1] += 1
-#     return  freq
-
 
 def cut_off_frequency(table, index, cutoffs): #Step 4.1
 
@@ -274,22 +228,25 @@ def cut_off_frequency(table, index, cutoffs): #Step 4.1
 
 
 def regression_line(table, index_x, index_y):
-    length = max(len(table[index_x]), len(table[index_y]))
     list_x = get_column_as_floats(table, index_x)
     list_y = get_column_as_floats(table, index_y)
-    print(len(list_x))
-    print(len(list_y))
     return stats.linregress(list_x, list_y)
 
 
 def get_regression_lines(table):
-    table_no_dupes = remove_incomplete_rows(table)
-    r_line_disp = regression_line(table_no_dupes, 2, 0)
-    r_line_horses = regression_line(table_no_dupes, 3, 0)
-    r_line_weight = regression_line(table_no_dupes, 4, 0)
-    r_line_msrp = regression_line(table_no_dupes, 9, 0)
-    pyplot.figure()    
-    pyplot.scatter(table_no_dupes[4], table_no_dupes[0])
+
+    r_line_disp = regression_line(table, 2, 0)
+    r_line_horses = regression_line(table, 3, 0)
+    r_line_weight = regression_line(table, 4, 0)
+    r_line_msrp = regression_line(table, 9, 0)
+
+    slope, intercept, r_value, p_value, slope_std_error = stats.linregress(numpy.asarray(get_column_as_floats(table, 4)), numpy.asarray(get_column_as_floats(table, 0)))
+    xs = get_column_as_floats(table, 4)
+    ys = get_column_as_floats(table, 0)
+    pyplot.figure()
+
+    pyplot.scatter(xs, ys)
+    pyplot.plot ([slope * x + intercept for x in range(0, int(max(xs)))], color='r')
     pyplot.savefig('step_7_Weight.pdf')
 
 
@@ -350,6 +307,8 @@ def divided_frequency_chart(table, index1, index2):
     pyplot.figure()
 
     index = numpy.arange(10)
+    xLables[1].append(0) # FIX
+
 
     pyplot.bar(index, xLables[0], width=.3, alpha=.5, color='lightblue', label='US')
     pyplot.bar(index+.3, xLables[1], width=.3, alpha=.5, color='red', label='Europe')
@@ -364,33 +323,28 @@ def divided_frequency_chart(table, index1, index2):
     pyplot.savefig('step_8_partB.pdf')
 
 
-def create_scatterplots(table):
-    scatter_plot(table, 2, 0)
-    scatter_plot(table, 3, 0)
-    scatter_plot(table, 4, 0)
-    scatter_plot(table, 5, 0)
-    scatter_plot(table, 9, 0)
+def remove_incomplete_rows(table):
 
+    newTable = []
 
-# def create_histograms(table):
-#     frequency_chart(table, 1)
-#     frequency_chart(table, 6)
-#     frequency_chart(table, 7)
+    for row in table:
+        for item in row:
+            check = True
+            if item == 'NA':
+                check = False
+                break
+        if check:
+            newTable.append(row)
 
-
-def create_histograms_continuous(table):
-    historgram_continuous(table, 0)
-    historgram_continuous(table, 2)
-    historgram_continuous(table, 3)
-    historgram_continuous(table, 4)
-    historgram_continuous(table, 5)
-    historgram_continuous(table, 9)
+    return newTable
 
 
 def main():
 
     table = read_csv('auto-data.txt')
+    table = remove_incomplete_rows(table)
 
+    print table[0]
     freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
 
     # Step 1
@@ -419,16 +373,22 @@ def main():
     transform_frequency_chart(table, 0, cuts, 'B')
 
     # Step 5
+    historgram_continuous(table, 0)
+    historgram_continuous(table, 2)
+    historgram_continuous(table, 3)
+    historgram_continuous(table, 4)
+    historgram_continuous(table, 5)
+    historgram_continuous(table, 9)
 
     # Step 6
+    scatter_plot(table, 2, 0)
+    scatter_plot(table, 3, 0)
+    scatter_plot(table, 4, 0)
+    scatter_plot(table, 5, 0)
+    scatter_plot(table, 9, 0)
 
     # Step 7
-
-    freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
-
-    create_histograms_continuous(table) #Step 5
-    create_scatterplots(table)          #Step 6
-    get_regression_lines(table)         #Step 7
+    get_regression_lines(table)
 
     # Step 8
     box_plot(table, 6, 0)
