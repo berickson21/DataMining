@@ -118,15 +118,14 @@ def check_keys(row1, row2, keyList):
         return row1[keyList[0]] == row2[keyList[0]] and check_keys(row1, row2, keyList[1:])
 
 
-def remove_incomplete_rows(table, indexList):
+def remove_incomplete_rows(table, indexList=[0, 1, 2 ,3, 4, 5, 6, 7, 8, 9]):
 
     newTable = []
 
     for row in table:
         if check_NA(row, indexList):
             newTable.append(row)
-            
-    summary_statistics(newTable, [8,6])
+
     return newTable
 
 
