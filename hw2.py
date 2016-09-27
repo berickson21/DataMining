@@ -32,8 +32,8 @@ def scatter_plot(table, xIndex, yIndex):
 
     pyplot.xlabel(COLUMN_NAMES[xIndex])  # x label
     pyplot.ylabel(COLUMN_NAMES[yIndex])  # y label
-
-    pyplot.grid()
+    pyplot.title(COLUMN_NAMES[xIndex] + 'vs.' + COLUMN_NAMES[yIndex])
+    pyplot.grid(True)
 
     pyplot.scatter(xs, ys, color='g')
 
@@ -143,7 +143,7 @@ def frequency(table, index):
     return cats, freq
 
 
-def historgram_continuous(table, index):
+def histogram_continuous(table, index):
 
     column = get_column_as_floats(table, index)
     column.sort()
@@ -152,7 +152,7 @@ def historgram_continuous(table, index):
 
     pyplot.xlabel(COLUMN_NAMES[index])  # x label
     pyplot.ylabel('Frequency')  # y label
-
+    pyplot.title('Distribution of ' + COLUMN_NAMES[index])
     pyplot.hist(column, bins=10, label='EPA MPG Categories')
     pyplot.savefig('step_5_'+COLUMN_NAMES[index]+'.pdf')  # save graph
 
@@ -241,10 +241,11 @@ def get_regression_lines(table):
     xs = get_column_as_floats(table, 4)
     ys = get_column_as_floats(table, 0)
     pyplot.figure()
-    print (slope)
 
     pyplot.scatter(xs, ys)
     pyplot.plot ([slope * x + intercept for x in range(0, int(max(xs)))], color='r')
+    pyplot.grid(True)
+    pyplot.title('MPG vs Weight')
     pyplot.savefig('step_7_Weight.pdf')
     
 
@@ -397,12 +398,12 @@ def main():
     pyplot.close("all")
 
     # Step 5
-    historgram_continuous(table, 0)
-    historgram_continuous(table, 2)
-    historgram_continuous(table, 3)
-    historgram_continuous(table, 4)
-    historgram_continuous(table, 5)
-    historgram_continuous(table, 9)
+    histogram_continuous(table, 0)
+    histogram_continuous(table, 2)
+    histogram_continuous(table, 3)
+    histogram_continuous(table, 4)
+    histogram_continuous(table, 5)
+    histogram_continuous(table, 9)
     pyplot.close("all")
 
 
