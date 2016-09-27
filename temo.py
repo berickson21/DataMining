@@ -5,17 +5,13 @@ matplotlib.use('pdf')
 import matplotlib.pyplot as pyplot
 import numpy as numpy
 
-from hw1 import read_csv, get_column, get_column_as_floats
-
-
-from scipy import stats as stats
-
+from hw1 import read_csv, get_column, get_column_as_floats, remove_incomplete_rows
 
 COLUMN_NAMES = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
                 'Acceleration', 'Model Year', 'Origin', 'Car Name', 'MSRP']
 
 
-def scatter_plot(table, xIndex, yIndex):
+def scatter_plot(table, xIndex, yIndex, xLabel, yLabel):
 
     ys = []
     xs = []
@@ -30,14 +26,14 @@ def scatter_plot(table, xIndex, yIndex):
     pyplot.xlim(int(min(xs)) * 0.95, int(max(xs) * 1.05))  # set x bounds on graph
     pyplot.ylim(int(min(ys)) * 0.95, int(max(ys) * 1.05))  # set y bounds on graph
 
-    pyplot.xlabel(COLUMN_NAMES[xIndex])  # x label
-    pyplot.ylabel(COLUMN_NAMES[yIndex])  # y label
+    pyplot.xlabel(xLabel)  # x label
+    pyplot.ylabel(yLabel)  # y label
 
     pyplot.grid()
 
     pyplot.scatter(xs, ys, color='g')
 
-    pyplot.savefig('step_6_'+COLUMN_NAMES[xIndex]+'.pdf')  # save graph
+    pyplot.savefig('fig8.pdf')  # save graph
 
 
 def pie_chart(table, index):
@@ -69,7 +65,11 @@ def strip_char(table, index):
     pyplot.title(COLUMN_NAMES[index] + ' of all Cars')
     pyplot.xlabel(COLUMN_NAMES[index])
 
+    #xrng = numpy.arange(len(column))
+    #pyplot.xticks(xrng, column)
+
     pyplot.gca().get_yaxis().set_visible(False)
+    # pyplot.plot(column, y, marker='.', markersize=50, alpha=0.2)
     pyplot.scatter(column, y, marker='.', alpha=0.2, s=5000, color='b')
 
     pyplot.savefig('step_3_' + COLUMN_NAMES[index] + '.pdf')
@@ -83,17 +83,11 @@ def box_plot(table, xIndex, yIndex):
     xrng = numpy.arange(len(data[0]), 1)
 
     pyplot.xticks(xrng, data[0])
-
-    pyplot.xlabel(COLUMN_NAMES[xIndex])
-    pyplot.ylabel(COLUMN_NAMES[yIndex])
-    pyplot.title(COLUMN_NAMES[yIndex] + ' by ' + COLUMN_NAMES[xIndex])
-    pyplot.boxplot(data[1])
-
     pyplot.xlabel(COLUMN_NAMES[xIndex])
     pyplot.ylabel(COLUMN_NAMES[yIndex])
     pyplot.boxplot(data[1])
 
-    pyplot.savefig('step_8_partA.pdf')
+    pyplot.savefig('step_8.pdf')
 
 
 def frequency_chart(table, index):
@@ -106,7 +100,7 @@ def frequency_chart(table, index):
     ys = freq[1]
 
     xrng = numpy.arange(len(xs))
-    yrng = numpy.arange(max(ys))
+    yrng = numpy.arange(max(ys) + 2)
 
     pyplot.bar(xrng, ys, 0.5, alpha=0.75, align='center', color='lightblue')
 
@@ -143,21 +137,21 @@ def frequency(table, index):
     return cats, freq
 
 
-def historgram_continuous(table, index):
-
-    column = get_column_as_floats(table, index)
+def create_histogram(table, index, xLabel, yLabel):
+    column = get_column(table, index)
     column.sort()
+
+    cutoffs = [13, 14, 16, 19, 23, 26, 30, 36, 44, 45]
 
     pyplot.figure()
 
-    pyplot.xlabel(COLUMN_NAMES[index])  # x label
-    pyplot.ylabel('Frequency')  # y label
+    pyplot.hist(cut_off_frequency(table, index, cutoffs), bins=10, label='EPA MPG Categories')
 
-    pyplot.hist(column, bins=10, label='EPA MPG Categories')
-    pyplot.savefig('step_5_'+COLUMN_NAMES[index]+'.pdf')  # save graph
+    pyplot.savefig('fig8.pdf')
 
 
 def group_by(table, index):
+
     dict = {}
 
     for row in table:
@@ -201,7 +195,7 @@ def sort_dict(dictionary):
     return values, keys
 
 
-def get_cutoffs(table, index, num):     #Step 4.2
+def get_cutoffs(table, index, num):
 
     col = get_column_as_floats(table, index)
 
@@ -213,7 +207,7 @@ def get_cutoffs(table, index, num):     #Step 4.2
     return list(range(min_value + width, max_value+1, width))
 
 
-def cut_off_frequency(table, index, cutoffs): #Step 4.1
+def cut_off_frequency(table, index, cutoffs):
 
     freq = [0]*(len(cutoffs))
 
@@ -224,29 +218,13 @@ def cut_off_frequency(table, index, cutoffs): #Step 4.1
             if item <= cutoffs[i]:
                 freq[i] += 1
                 break
-    return freq, cutoffs
 
-
-def regression_line(table, index_x, index_y):
-    length = max(len(table[index_x]), len(table[index_y]))
-    list_x = get_column_as_floats(table, index_x)
-    list_y = get_column_as_floats(table, index_y)
-    print(len(list_x))
-    print(len(list_y))
-    return stats.linregress(list_x, list_y)
-
-
-def get_regression_lines(table):
-    pyplot.figure()
-    r_line_disp = regression_line(table, 2, 0)
-    r_line_horses = regression_line(table, 3, 0)
-    r_line_weight = regression_line(table, 4, 0)
-    r_line_msrp = regression_line(table, 9, 0)
+    return freq
 
 
 def transform_frequency_chart(table, index, cutoffs, part):
 
-    freq = cut_off_frequency(table, 0, cutoffs)[0]
+    freq = cut_off_frequency(table, 0, cutoffs)
     # xLabels = [i + 1 for i in range(len(freq))]
 
     labels = make_labels_from_cutoffs(cutoffs)
@@ -301,9 +279,6 @@ def divided_frequency_chart(table, index1, index2):
     pyplot.figure()
 
     index = numpy.arange(10)
-    xLables[1].append(0) # FIX
-    print len(xLables[1]), xLables
-    print len(index)
 
     pyplot.bar(index, xLables[0], width=.3, alpha=.5, color='lightblue', label='US')
     pyplot.bar(index+.3, xLables[1], width=.3, alpha=.5, color='red', label='Europe')
@@ -318,29 +293,9 @@ def divided_frequency_chart(table, index1, index2):
     pyplot.savefig('step_8_partB.pdf')
 
 
-def remove_incomplete_rows(table):
-
-    newTable = []
-
-    for row in table:
-        for item in row:
-            check = True
-            if item == 'NA':
-                check = False
-                break
-        if check:
-            newTable.append(row)
-
-    return newTable
-
-
 def main():
 
     table = read_csv('auto-data.txt')
-    table = remove_incomplete_rows(table)
-
-    print table[0]
-    freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
 
     # Step 1
     frequency_chart(table, 1)
@@ -368,22 +323,10 @@ def main():
     transform_frequency_chart(table, 0, cuts, 'B')
 
     # Step 5
-    historgram_continuous(table, 0)
-    historgram_continuous(table, 2)
-    historgram_continuous(table, 3)
-    historgram_continuous(table, 4)
-    historgram_continuous(table, 5)
-    historgram_continuous(table, 9)
 
     # Step 6
-    scatter_plot(table, 2, 0)
-    scatter_plot(table, 3, 0)
-    scatter_plot(table, 4, 0)
-    scatter_plot(table, 5, 0)
-    scatter_plot(table, 9, 0)
 
     # Step 7
-    # get_regression_lines(table)
 
     # Step 8
     box_plot(table, 6, 0)
