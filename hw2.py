@@ -364,7 +364,6 @@ def main():
     table = read_csv('auto-data.txt')
     table = remove_incomplete_rows(table)
 
-    print table[0]
     freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
 
     # Step 1
@@ -420,9 +419,6 @@ def main():
 
     pyplot.close("all")
 
-    # Step 7
-    # get_regression_lines(table)
-
 
     # Step 8
     box_plot(table, 6, 0)
@@ -430,4 +426,6 @@ def main():
 
     pyplot.close("all")
 
-main()
+if __name__ == '__main__':
+    main()
+
