@@ -176,16 +176,12 @@ def group_by(table, index):
     return keys, values
 
 
-def group(table, index):
+def group(table, index, keys):
 
-    dict = {}
+    dict = {key: [] for key in keys}
 
     for row in table:
-        if row[index] != 'NA':
-            if row[index] in dict:
-                dict[row[index]].append(row)
-            else:
-                dict.update({row[index]: [row]})
+        dict[row[index]].append(row)
 
     return sort_dict(dict)[0]
 
@@ -282,38 +278,55 @@ def make_labels_from_cutoffs(cutoffs):
     return labels
 
 
+def get_column_nodups(table, index):
+
+    col = []
+
+    for row in table:
+        if row[index] not in col:
+            col.append(row[index])
+    col.sort()
+    return col
+
+
+def count_if(table, index, key):
+
+    count = 0
+
+    for row in table:
+        if row[index] == key:
+            count += 1
+
+    return count
+
+
 def divided_frequency_chart(table, index1, index2):
 
-    sub1 = group(table, index2)
-    dict = {}
+    col1 = get_column_nodups(table, index1)
+    col2 = get_column_nodups(table, index2)
 
-    for sub in sub1:
-        g = group(sub, index1)
-        key = sub[0][index2]
-        freq = []
-        for item in g:
-            freq.append(len(item))
-        dict.update({key: freq})
+    sub1 = group(table, index2, col2)
 
-    dict = sort_dict(dict)
-    xLables = dict[0]
-    values = [i for i in range(70, 80, 1)]
+    l = len(col1)
+    values = [[0]*l, [0]*l, [0]*l]
+
+    for i in range(len(sub1)):
+        for j in range(len(col1)):
+            values[i][j] = count_if(sub1[i], index1, col1[j])
+
     pyplot.figure()
 
     index = numpy.arange(10)
-    xLables[1].append(0) # FIX
-    print len(xLables[1]), xLables
-    print len(index)
 
-    pyplot.bar(index, xLables[0], width=.3, alpha=.5, color='lightblue', label='US')
-    pyplot.bar(index+.3, xLables[1], width=.3, alpha=.5, color='red', label='Europe')
-    pyplot.bar(index+.6, xLables[2], width=.3, alpha=.5, color='gold', label='Japan')
+    pyplot.bar(index, values[0], width=.3, alpha=.5, color='lightblue', label='US')
+    pyplot.bar(index+.3, values[1], width=.3, alpha=.5, color='red', label='Europe')
+    pyplot.bar(index+.6, values[2], width=.3, alpha=.5, color='gold', label='Japan')
 
     pyplot.xlabel('Model Year')
     pyplot.ylabel('Count')
     pyplot.title('Total number of cars by Model Year and Country of Origin')
-    pyplot.xticks(index + 0.5, values)
-    pyplot.legend()
+    pyplot.xticks(index + 0.5, col1)
+    pyplot.legend(loc=2)
 
     pyplot.savefig('step_8_partB.pdf')
 
@@ -339,18 +352,17 @@ def main():
     table = read_csv('auto-data.txt')
     table = remove_incomplete_rows(table)
 
-    print table[0]
-    freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
-
     # Step 1
     frequency_chart(table, 1)
     frequency_chart(table, 6)
     frequency_chart(table, 7)
+    pyplot.close("all")
 
     # Step 2
     pie_chart(table, 1)
     pie_chart(table, 6)
     pie_chart(table, 7)
+    pyplot.close("all")
 
     # Step 3
     strip_char(table, 0)
@@ -358,14 +370,17 @@ def main():
     strip_char(table, 4)
     strip_char(table, 5)
     strip_char(table, 9)
+    pyplot.close("all")
 
     # Step 4 Part A
     cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44]
     transform_frequency_chart(table, 0, cuts, 'A')
+    pyplot.close("all")
 
     # Step 4 Part B
     cuts = get_cutoffs(table, 0, 5)
     transform_frequency_chart(table, 0, cuts, 'B')
+    pyplot.close("all")
 
     # Step 5
     historgram_continuous(table, 0)
@@ -374,6 +389,7 @@ def main():
     historgram_continuous(table, 4)
     historgram_continuous(table, 5)
     historgram_continuous(table, 9)
+    pyplot.close("all")
 
     # Step 6
     scatter_plot(table, 2, 0)
@@ -381,6 +397,7 @@ def main():
     scatter_plot(table, 4, 0)
     scatter_plot(table, 5, 0)
     scatter_plot(table, 9, 0)
+    pyplot.close("all")
 
     # Step 7
     # get_regression_lines(table)
@@ -388,5 +405,7 @@ def main():
     # Step 8
     box_plot(table, 6, 0)
     divided_frequency_chart(table, 6, 7)
+
+    pyplot.close("all")
 
 main()
