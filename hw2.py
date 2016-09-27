@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import matplotlib
 
 matplotlib.use('pdf')
@@ -6,7 +5,7 @@ matplotlib.use('pdf')
 import matplotlib.pyplot as pyplot
 import numpy as numpy
 
-from hw1 import read_csv, get_column, get_column_as_floats
+from hw1 import read_csv, get_column, get_column_as_floats, remove_incomplete_rows
 
 COLUMN_NAMES = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
                 'Acceleration', 'Model Year', 'Origin', 'Car Name', 'MSRP']
@@ -277,7 +276,6 @@ def divided_frequency_chart(table, index1, index2):
     dict = sort_dict(dict)
     xLables = dict[0]
     values = [i for i in range(70, 80, 1)]
-    print values
     pyplot.figure()
 
     index = numpy.arange(10)
@@ -293,6 +291,7 @@ def divided_frequency_chart(table, index1, index2):
     pyplot.legend()
 
     pyplot.savefig('step_8_partB.pdf')
+
 
 def main():
 
