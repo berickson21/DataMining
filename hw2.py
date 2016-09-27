@@ -256,6 +256,7 @@ def transform_frequency_chart(table, index, cutoffs, part):
     labels = make_labels_from_cutoffs(cutoffs)
     pyplot.figure()
 
+
     xrng = numpy.arange(len(freq))
 
     pyplot.xticks(xrng, labels)
