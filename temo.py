@@ -5,17 +5,13 @@ matplotlib.use('pdf')
 import matplotlib.pyplot as pyplot
 import numpy as numpy
 
-from hw1 import read_csv, get_column, get_column_as_floats
-
-
-from scipy import stats as stats
-
+from hw1 import read_csv, get_column, get_column_as_floats, remove_incomplete_rows
 
 COLUMN_NAMES = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
                 'Acceleration', 'Model Year', 'Origin', 'Car Name', 'MSRP']
 
 
-def scatter_plot(table, xIndex, yIndex):
+def scatter_plot(table, xIndex, yIndex, xLabel, yLabel):
 
     ys = []
     xs = []
@@ -30,14 +26,14 @@ def scatter_plot(table, xIndex, yIndex):
     pyplot.xlim(int(min(xs)) * 0.95, int(max(xs) * 1.05))  # set x bounds on graph
     pyplot.ylim(int(min(ys)) * 0.95, int(max(ys) * 1.05))  # set y bounds on graph
 
-    pyplot.xlabel(COLUMN_NAMES[xIndex])  # x label
-    pyplot.ylabel(COLUMN_NAMES[yIndex])  # y label
-    pyplot.title(COLUMN_NAMES[xIndex] + 'vs.' + COLUMN_NAMES[yIndex])
-    pyplot.grid(True)
+    pyplot.xlabel(xLabel)  # x label
+    pyplot.ylabel(yLabel)  # y label
+
+    pyplot.grid()
 
     pyplot.scatter(xs, ys, color='g')
 
-    pyplot.savefig('step_6_'+COLUMN_NAMES[xIndex]+'.pdf')  # save graph
+    pyplot.savefig('fig8.pdf')  # save graph
 
 
 def pie_chart(table, index):
@@ -69,7 +65,11 @@ def strip_char(table, index):
     pyplot.title(COLUMN_NAMES[index] + ' of all Cars')
     pyplot.xlabel(COLUMN_NAMES[index])
 
+    #xrng = numpy.arange(len(column))
+    #pyplot.xticks(xrng, column)
+
     pyplot.gca().get_yaxis().set_visible(False)
+    # pyplot.plot(column, y, marker='.', markersize=50, alpha=0.2)
     pyplot.scatter(column, y, marker='.', alpha=0.2, s=5000, color='b')
 
     pyplot.savefig('step_3_' + COLUMN_NAMES[index] + '.pdf')
@@ -83,17 +83,11 @@ def box_plot(table, xIndex, yIndex):
     xrng = numpy.arange(len(data[0]), 1)
 
     pyplot.xticks(xrng, data[0])
-
-    pyplot.xlabel(COLUMN_NAMES[xIndex])
-    pyplot.ylabel(COLUMN_NAMES[yIndex])
-    pyplot.title(COLUMN_NAMES[yIndex] + ' by ' + COLUMN_NAMES[xIndex])
-    pyplot.boxplot(data[1])
-
     pyplot.xlabel(COLUMN_NAMES[xIndex])
     pyplot.ylabel(COLUMN_NAMES[yIndex])
     pyplot.boxplot(data[1])
 
-    pyplot.savefig('step_8_partA.pdf')
+    pyplot.savefig('step_8.pdf')
 
 
 def frequency_chart(table, index):
@@ -106,7 +100,7 @@ def frequency_chart(table, index):
     ys = freq[1]
 
     xrng = numpy.arange(len(xs))
-    yrng = numpy.arange(max(ys))
+    yrng = numpy.arange(max(ys) + 2)
 
     pyplot.bar(xrng, ys, 0.5, alpha=0.75, align='center', color='lightblue')
 
@@ -143,21 +137,21 @@ def frequency(table, index):
     return cats, freq
 
 
-def histogram_continuous(table, index):
-
-    column = get_column_as_floats(table, index)
+def create_histogram(table, index, xLabel, yLabel):
+    column = get_column(table, index)
     column.sort()
+
+    cutoffs = [13, 14, 16, 19, 23, 26, 30, 36, 44, 45]
 
     pyplot.figure()
 
-    pyplot.xlabel(COLUMN_NAMES[index])  # x label
-    pyplot.ylabel('Frequency')  # y label
-    pyplot.title('Distribution of ' + COLUMN_NAMES[index])
-    pyplot.hist(column, bins=10, label='EPA MPG Categories')
-    pyplot.savefig('step_5_'+COLUMN_NAMES[index]+'.pdf')  # save graph
+    pyplot.hist(cut_off_frequency(table, index, cutoffs), bins=10, label='EPA MPG Categories')
+
+    pyplot.savefig('fig8.pdf')
 
 
 def group_by(table, index):
+
     dict = {}
 
     for row in table:
@@ -176,13 +170,16 @@ def group_by(table, index):
     return keys, values
 
 
+def group(table, index):
 
-def group(table, index, keys):
-
-    dict = {key: [] for key in keys}
+    dict = {}
 
     for row in table:
-        dict[row[index]].append(row)
+        if row[index] != 'NA':
+            if row[index] in dict:
+                dict[row[index]].append(row)
+            else:
+                dict.update({row[index]: [row]})
 
     return sort_dict(dict)[0]
 
@@ -198,7 +195,7 @@ def sort_dict(dictionary):
     return values, keys
 
 
-def get_cutoffs(table, index, num):     #Step 4.2
+def get_cutoffs(table, index, num):
 
     col = get_column_as_floats(table, index)
 
@@ -210,7 +207,7 @@ def get_cutoffs(table, index, num):     #Step 4.2
     return list(range(min_value + width, max_value+1, width))
 
 
-def cut_off_frequency(table, index, cutoffs): #Step 4.1
+def cut_off_frequency(table, index, cutoffs):
 
     freq = [0]*(len(cutoffs))
 
@@ -221,43 +218,17 @@ def cut_off_frequency(table, index, cutoffs): #Step 4.1
             if item <= cutoffs[i]:
                 freq[i] += 1
                 break
-    return freq, cutoffs
 
-
-def regression_line(table, index_x, index_y):
-    list_x = get_column_as_floats(table, index_x)
-    list_y = get_column_as_floats(table, index_y)
-    return stats.linregress(list_x, list_y)
-
-
-def get_regression_lines(table):
-
-    r_line_disp = regression_line(table, 2, 0)
-    r_line_horses = regression_line(table, 3, 0)
-    r_line_weight = regression_line(table, 4, 0)
-    r_line_msrp = regression_line(table, 9, 0)
-
-    slope, intercept, r_value, p_value, slope_std_error = stats.linregress(numpy.asarray(get_column_as_floats(table, 4)), numpy.asarray(get_column_as_floats(table, 0)))
-    xs = get_column_as_floats(table, 4)
-    ys = get_column_as_floats(table, 0)
-    pyplot.figure()
-
-    pyplot.scatter(xs, ys)
-    pyplot.plot ([slope * x + intercept for x in range(0, int(max(xs)))], color='r')
-    pyplot.grid(True)
-    pyplot.title('MPG vs Weight')
-    pyplot.savefig('step_7_Weight.pdf')
-    
+    return freq
 
 
 def transform_frequency_chart(table, index, cutoffs, part):
 
-    freq = cut_off_frequency(table, 0, cutoffs)[0]
+    freq = cut_off_frequency(table, 0, cutoffs)
     # xLabels = [i + 1 for i in range(len(freq))]
 
     labels = make_labels_from_cutoffs(cutoffs)
     pyplot.figure()
-
 
     xrng = numpy.arange(len(freq))
 
@@ -289,94 +260,52 @@ def make_labels_from_cutoffs(cutoffs):
     return labels
 
 
-def get_column_nodups(table, index):
-
-    col = []
-
-    for row in table:
-        if row[index] not in col:
-            col.append(row[index])
-    col.sort()
-    return col
-
-
-def count_if(table, index, key):
-
-    count = 0
-
-    for row in table:
-        if row[index] == key:
-            count += 1
-
-    return count
-
-
 def divided_frequency_chart(table, index1, index2):
 
-    col1 = get_column_nodups(table, index1)
-    col2 = get_column_nodups(table, index2)
+    sub1 = group(table, index2)
+    dict = {}
 
-    sub1 = group(table, index2, col2)
+    for sub in sub1:
+        g = group(sub, index1)
+        key = sub[0][index2]
+        freq = []
+        for item in g:
+            freq.append(len(item))
+        dict.update({key: freq})
 
-    l = len(col1)
-    values = [[0]*l, [0]*l, [0]*l]
-
-    for i in range(len(sub1)):
-        for j in range(len(col1)):
-            values[i][j] = count_if(sub1[i], index1, col1[j])
-
+    dict = sort_dict(dict)
+    xLables = dict[0]
+    values = [i for i in range(70, 80, 1)]
     pyplot.figure()
 
     index = numpy.arange(10)
-    
 
-    pyplot.bar(index, values[0], width=.3, alpha=.5, color='lightblue', label='US')
-    pyplot.bar(index+.3, values[1], width=.3, alpha=.5, color='red', label='Europe')
-    pyplot.bar(index+.6, values[2], width=.3, alpha=.5, color='gold', label='Japan')
+    pyplot.bar(index, xLables[0], width=.3, alpha=.5, color='lightblue', label='US')
+    pyplot.bar(index+.3, xLables[1], width=.3, alpha=.5, color='red', label='Europe')
+    pyplot.bar(index+.6, xLables[2], width=.3, alpha=.5, color='gold', label='Japan')
 
     pyplot.xlabel('Model Year')
     pyplot.ylabel('Count')
     pyplot.title('Total number of cars by Model Year and Country of Origin')
-    pyplot.xticks(index + 0.5, col1)
-    pyplot.legend(loc=2)
+    pyplot.xticks(index + 0.5, values)
+    pyplot.legend()
 
     pyplot.savefig('step_8_partB.pdf')
-
-
-def remove_incomplete_rows(table):
-
-    newTable = []
-
-    for row in table:
-        for item in row:
-            check = True
-            if item == 'NA':
-                check = False
-                break
-        if check:
-            newTable.append(row)
-
-    return newTable
 
 
 def main():
 
     table = read_csv('auto-data.txt')
-    table = remove_incomplete_rows(table)
-
-    freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
 
     # Step 1
     frequency_chart(table, 1)
     frequency_chart(table, 6)
     frequency_chart(table, 7)
-    pyplot.close("all")
 
     # Step 2
     pie_chart(table, 1)
     pie_chart(table, 6)
     pie_chart(table, 7)
-    pyplot.close("all")
 
     # Step 3
     strip_char(table, 0)
@@ -384,48 +313,23 @@ def main():
     strip_char(table, 4)
     strip_char(table, 5)
     strip_char(table, 9)
-    pyplot.close("all")
 
     # Step 4 Part A
     cuts = [13, 14, 16, 19, 23, 26, 30, 36, 44]
     transform_frequency_chart(table, 0, cuts, 'A')
-    pyplot.close("all")
 
     # Step 4 Part B
     cuts = get_cutoffs(table, 0, 5)
     transform_frequency_chart(table, 0, cuts, 'B')
-    pyplot.close("all")
 
     # Step 5
-    histogram_continuous(table, 0)
-    histogram_continuous(table, 2)
-    histogram_continuous(table, 3)
-    histogram_continuous(table, 4)
-    histogram_continuous(table, 5)
-    histogram_continuous(table, 9)
-    pyplot.close("all")
-
 
     # Step 6
-    scatter_plot(table, 2, 0)
-    scatter_plot(table, 3, 0)
-    scatter_plot(table, 4, 0)
-    scatter_plot(table, 5, 0)
-    scatter_plot(table, 9, 0)
-
 
     # Step 7
-    get_regression_lines(table)
-
-    pyplot.close("all")
-
 
     # Step 8
     box_plot(table, 6, 0)
     divided_frequency_chart(table, 6, 7)
 
-    pyplot.close("all")
-
-if __name__ == '__main__':
-    main()
-
+main()
