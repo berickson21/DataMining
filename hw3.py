@@ -2,6 +2,15 @@ from hw1 import read_csv, get_column, get_column_as_floats
 from hw2 import remove_incomplete_rows, regression_line, get_regression_lines, scatter_plot, COLUMN_NAMES
 
 
+def linear_regression_classification(table, instance, xIndex, yIndex):  # Part 1
+
+    reg = regression_line(table, xIndex, yIndex)  # get Linear Regression
+    slope = reg[0]   # get slope
+    intercept = reg[1]  # get intercept
+
+    return (slope * instance[xIndex]) + intercept  # predict y-variable based on the x-variable
+
+
 def distance(row, instance, n):
 
     return 1
@@ -37,19 +46,9 @@ def knn_classifier(trainingSet, n, instance, k):
     return label
 
 
-def linear_regression_classification(table, instance, xIndex, yIndex):
-
-    reg = regression_line(table, xIndex, yIndex)
-    slope = reg[0]
-    intercept = reg[1]
-
-    return (slope * instance[xIndex]) + intercept
-
-
 def main():
     table = read_csv('auto-data.txt')
     table = remove_incomplete_rows(table)
-
 
 if __name__ == '__main__':
     main()
