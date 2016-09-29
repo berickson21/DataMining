@@ -11,25 +11,9 @@ def linear_regression_classification(table, instance, xIndex, yIndex):  # Part 1
     return (slope * instance[xIndex]) + intercept  # predict y-variable based on the x-variable
 
 
-def distance(row, instance, n):
-
-    return 1
-
-
-def normalize(col):
-    maximum = max(col)
-    minimum = min(col)
-    rng = maximum - minimum
-    return[(item - minimum)/float(rng) for item in col]
-
-
-def select_class_label(top_k_rows):
-    return 'Label'
-
-
-def knn_classifier(trainingSet, n, instance, k):
+def knn_classifier(trainingSet, n, instance, k):  # Step 2
     # trainingSet is a subset of the table
-    # n is the number of at atributes
+    # n is the number of at attributes
     # instance - trying to classify
     # size of comparision set
 
@@ -44,6 +28,21 @@ def knn_classifier(trainingSet, n, instance, k):
     label = select_class_label(top_k_rows)
 
     return label
+
+
+def distance(row, instance, n):
+
+    return 1
+
+def normalize(col):
+    maximum = max(col)
+    minimum = min(col)
+    rng = maximum - minimum
+    return[(item - minimum)/float(rng) for item in col]
+
+
+def select_class_label(top_k_rows):
+    return 'Label'
 
 
 def main():
