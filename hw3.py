@@ -1,9 +1,9 @@
 from hw1 import read_csv, get_column, get_column_as_floats
-
+from hw2 import remove_incomplete_rows
 
 def distance(row, instance, n):
+    
     return 1
-
 
 def normalize(row):
     maximum = max(row)
@@ -38,6 +38,7 @@ def knn_classifier(trainingSet, n, instance, k):
 
 def main():
     table = read_csv('auto-data.txt')
+    table = remove_incomplete_rows(table)
 
 
 if __name__ == '__main__':
