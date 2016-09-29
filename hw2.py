@@ -7,7 +7,6 @@ import numpy as numpy
 
 from hw1 import read_csv, get_column, get_column_as_floats
 
-
 from scipy import stats as stats
 
 
@@ -32,12 +31,12 @@ def scatter_plot(table, xIndex, yIndex):
 
     pyplot.xlabel(COLUMN_NAMES[xIndex])  # x label
     pyplot.ylabel(COLUMN_NAMES[yIndex])  # y label
-    pyplot.title(COLUMN_NAMES[xIndex] + 'vs.' + COLUMN_NAMES[yIndex])
-    pyplot.grid(True)
+    pyplot.title(COLUMN_NAMES[xIndex] + ' vs ' + COLUMN_NAMES[yIndex])
+    pyplot.grid()
 
     pyplot.scatter(xs, ys, color='g')
 
-    pyplot.savefig('step_6_'+COLUMN_NAMES[xIndex]+'.pdf')  # save graph
+    pyplot.savefig('step_6_'+COLUMN_NAMES[xIndex] + '_vs_' + COLUMN_NAMES[yIndex]+'.pdf')  # save graph
 
 
 def pie_chart(table, index):
@@ -143,7 +142,7 @@ def frequency(table, index):
     return cats, freq
 
 
-def histogram_continuous(table, index):
+def historgram_continuous(table, index):
 
     column = get_column_as_floats(table, index)
     column.sort()
@@ -152,7 +151,7 @@ def histogram_continuous(table, index):
 
     pyplot.xlabel(COLUMN_NAMES[index])  # x label
     pyplot.ylabel('Frequency')  # y label
-    pyplot.title('Distribution of ' + COLUMN_NAMES[index])
+    pyplot.title('Distribution of ' + COLUMN_NAMES[index] + ' Values')
     pyplot.hist(column, bins=10, label='EPA MPG Categories')
     pyplot.savefig('step_5_'+COLUMN_NAMES[index]+'.pdf')  # save graph
 
@@ -174,7 +173,6 @@ def group_by(table, index):
         values.append(dict[key])
 
     return keys, values
-
 
 
 def group(table, index, keys):
@@ -230,7 +228,7 @@ def regression_line(table, index_x, index_y):
     return stats.linregress(list_x, list_y)
 
 
-def get_regression_lines(table):
+def get_regression_lines(table, xIndex, yIndex):
 
     r_line_disp = regression_line(table, 2, 0)
     r_line_horses = regression_line(table, 3, 0)
@@ -238,16 +236,19 @@ def get_regression_lines(table):
     r_line_msrp = regression_line(table, 9, 0)
 
     slope, intercept, r_value, p_value, slope_std_error = stats.linregress(numpy.asarray(get_column_as_floats(table, 4)), numpy.asarray(get_column_as_floats(table, 0)))
-    xs = get_column_as_floats(table, 4)
-    ys = get_column_as_floats(table, 0)
+
+    xs = get_column_as_floats(table, xIndex)
+    ys = get_column_as_floats(table, yIndex)
     pyplot.figure()
+
+    pyplot.xlabel(COLUMN_NAMES[xIndex])
+    pyplot.ylabel(COLUMN_NAMES[yIndex])
+
+    pyplot.title(COLUMN_NAMES[xIndex] + ' vs ' + COLUMN_NAMES[yIndex])
 
     pyplot.scatter(xs, ys)
     pyplot.plot ([slope * x + intercept for x in range(0, int(max(xs)))], color='r')
-    pyplot.grid(True)
-    pyplot.title('MPG vs Weight')
-    pyplot.savefig('step_7_Weight.pdf')
-    
+    pyplot.savefig('step_7_' + COLUMN_NAMES[xIndex] + '_vs_' + COLUMN_NAMES[yIndex] + '.pdf')
 
 
 def transform_frequency_chart(table, index, cutoffs, part):
@@ -257,7 +258,6 @@ def transform_frequency_chart(table, index, cutoffs, part):
 
     labels = make_labels_from_cutoffs(cutoffs)
     pyplot.figure()
-
 
     xrng = numpy.arange(len(freq))
 
@@ -328,7 +328,6 @@ def divided_frequency_chart(table, index1, index2):
     pyplot.figure()
 
     index = numpy.arange(10)
-    
 
     pyplot.bar(index, values[0], width=.3, alpha=.5, color='lightblue', label='US')
     pyplot.bar(index+.3, values[1], width=.3, alpha=.5, color='red', label='Europe')
@@ -364,8 +363,6 @@ def main():
     table = read_csv('auto-data.txt')
     table = remove_incomplete_rows(table)
 
-    freq = cut_off_frequency(table, 0, get_cutoffs(table, 0, 10))
-
     # Step 1
     frequency_chart(table, 1)
     frequency_chart(table, 6)
@@ -397,14 +394,13 @@ def main():
     pyplot.close("all")
 
     # Step 5
-    histogram_continuous(table, 0)
-    histogram_continuous(table, 2)
-    histogram_continuous(table, 3)
-    histogram_continuous(table, 4)
-    histogram_continuous(table, 5)
-    histogram_continuous(table, 9)
+    historgram_continuous(table, 0)
+    historgram_continuous(table, 2)
+    historgram_continuous(table, 3)
+    historgram_continuous(table, 4)
+    historgram_continuous(table, 5)
+    historgram_continuous(table, 9)
     pyplot.close("all")
-
 
     # Step 6
     scatter_plot(table, 2, 0)
@@ -413,12 +409,13 @@ def main():
     scatter_plot(table, 5, 0)
     scatter_plot(table, 9, 0)
 
-
     # Step 7
-    get_regression_lines(table)
+    get_regression_lines(table, 2, 0)
+    get_regression_lines(table, 3, 0)
+    get_regression_lines(table, 4, 0)
+    get_regression_lines(table, 9, 0)
 
     pyplot.close("all")
-
 
     # Step 8
     box_plot(table, 6, 0)
@@ -428,4 +425,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
