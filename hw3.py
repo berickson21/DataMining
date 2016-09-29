@@ -1,5 +1,5 @@
 from hw1 import read_csv, get_column, get_column_as_floats
-from hw2 import remove_incomplete_rows
+from hw2 import remove_incomplete_rows, regression_line, get_regression_lines, scatter_plot, COLUMN_NAMES
 
 
 def distance(row, instance, n):
@@ -35,6 +35,15 @@ def knn_classifier(trainingSet, n, instance, k):
     label = select_class_label(top_k_rows)
 
     return label
+
+
+def linear_regression_classification(table, instance, xIndex, yIndex):
+
+    reg = regression_line(table, xIndex, yIndex)
+    slope = reg[0]
+    intercept = reg[1]
+
+    return (slope * instance[xIndex]) + intercept
 
 
 def main():

@@ -6,7 +6,6 @@ import matplotlib.pyplot as pyplot
 import numpy as numpy
 
 from hw1 import read_csv, get_column, get_column_as_floats
-
 from scipy import stats as stats
 
 
@@ -235,7 +234,10 @@ def get_regression_lines(table, xIndex, yIndex):
     r_line_weight = regression_line(table, 4, 0)
     r_line_msrp = regression_line(table, 9, 0)
 
-    slope, intercept, r_value, p_value, slope_std_error = stats.linregress(numpy.asarray(get_column_as_floats(table, 4)), numpy.asarray(get_column_as_floats(table, 0)))
+    slope, intercept, r_value, p_value, slope_std_error = stats.linregress(numpy.asarray(get_column_as_floats(table, xIndex)), numpy.asarray(get_column_as_floats(table, yIndex)))
+
+    print 'slope, intercept, r_value, p_value, slope_std_error'
+    print slope, intercept, r_value, p_value, slope_std_error
 
     xs = get_column_as_floats(table, xIndex)
     ys = get_column_as_floats(table, yIndex)
@@ -247,7 +249,12 @@ def get_regression_lines(table, xIndex, yIndex):
     pyplot.title(COLUMN_NAMES[xIndex] + ' vs ' + COLUMN_NAMES[yIndex])
 
     pyplot.scatter(xs, ys)
-    pyplot.plot ([slope * x + intercept for x in range(0, int(max(xs)))], color='r')
+
+    regxs = [i for i in range(int(min(xs)), int(max(xs)+1), 1)]
+    regys = [slope * x + intercept for x in regxs]
+
+    pyplot.plot(regxs, regys, color='r')
+
     pyplot.savefig('step_7_' + COLUMN_NAMES[xIndex] + '_vs_' + COLUMN_NAMES[yIndex] + '.pdf')
 
 
