@@ -1,22 +1,14 @@
 import random
-<<<<<<< HEAD
 import numpy
 import math
-=======
-import numpy as numpy
->>>>>>> 9752ecfe87d73d26e05b285fa1260765a429d6f4
 from random import shuffle
 from scipy.spatial import distance as dist_lib
+from scipy import stats
 from operator import sub
 
-<<<<<<< HEAD
 from hw1 import read_csv, maximum, get_column_as_floats
 from hw2 import remove_incomplete_rows, regression_line, COLUMN_NAMES
-=======
-from hw1 import read_csv
-from hw2 import remove_incomplete_rows, regression_line
 
->>>>>>> 9752ecfe87d73d26e05b285fa1260765a429d6f4
 
 # table is an instance of a table
 # instance in the row with the missing attribute we are predicting
@@ -45,38 +37,28 @@ def get_linear_classification(instance, xIndex, slope, intercept):  # Part 1
 def knn_classifier(table, n, instance, k):  # Step 2
     training_set = numpy.array(random.sample(table, table.shape[0] * 2/3))
     sub_training_set = training_set[:, [0, 1, 4, 5]].astype(float)
-    print(instance)
-    # print_double_line('STEP 2: k=' + k + 'Nearest Neighbor MPG Classifier')
-
     distances = []
-    # training_set_normed = numpy.empty(sub_training_set.shape)
-    sub_training_set[:, [0]] = normalize(sub_training_set[:, [0]])
-    sub_training_set[:, [2]] = normalize(sub_training_set[:, [2]])
-    sub_training_set[:, [3]] = normalize(sub_training_set[:, [3]])
-    instance_subset = numpy.array([instance[0], instance[1], instance[4], instance[5]])
-    print(instance_subset)
+    
+    instance_subset = map(float, numpy.array([instance[0], instance[1], instance[4], instance[5]]))
+    t_cat = numpy.empty(sub_training_set.shape)
+    for i in range(4):
+        t = sub_training_set[:, [i]].flatten()
+        t_cat[:, i], instance_subset[i] = normalize(t, instance_subset[i])
 
-    # for row in sub_training_set[[1], :]:
-    #     print("==================================================================================================")
-    #     print('instance is' + str(instance))
-    #     print(row)
-    #     new_row = distance(row, instance)
-    #     distances.append(new_row)
+    
+    for row in t_cat:
+        distances.append(distance(row, instance_subset))
+    t_cat1 = numpy.append(t_cat, training_set[:, [0]].astype(float), axis=1)
+    t_cat2 = numpy.append(t_cat1, numpy.vstack(distances), axis=1)
+    t_cat2.sort(axis=1)
 
-    # distances.sort()
-    # print('non-normalized distances:')
-    # print(distances)
-    # print('normalized distances:')
-    # print(distances_normed)
-
-
-    for row in training_set:
-        distances.append([distance(row, instance, []), row])
-
-    distances.sort(key=lambda x: x[0])
-    top_k_rows = distances[:k]
+    top_k_rows = t_cat2[:5]
     label = select_class_label(top_k_rows)
-
+    print('=================================================================================')
+    print('STEP 2: k=5 nearest neighbor MPG Classifier')
+    print('=================================================================================')
+    print('instance:' + str(instance))
+    print('class:' + str(label) + ' ' + 'actual: ' + str(instance[0]))
     return label
 
 
@@ -86,30 +68,33 @@ def knn_classifier(table, n, instance, k):  # Step 2
 # returns normalized distance for the instance to the given row
 
 def distance(row, instance):
-    print(row)
-    internal_list = map(numpy.subtract, numpy.asarray(row, dtype=float), numpy.asarray(instance, dtype=float))
-    # print('internal distance:' + str(internal_list))
-    euclidean_distance = math.sqrt(sum(x**2 for x in internal_list))
-    print(euclidean_distance)
-    # distances = dist_lib.euclidean(comp_row, comp_instance)
-# def distance(row, instance, n):
 
-#     return math.sqrt(sum([((row[index]-instance[index]) ** 2) for index in n]))
+    distances = []
+    indices = [0, 1, 2, 3]
+    for i in indices:
+        distances.append((row[i] - instance[i])**2)
+    
+    return math.sqrt(sum(distances))
 
 
 
-def normalize(col):
-    maximum = numpy.max(col)
-    minimum = numpy.min(col)
-    minmax = (maximum - minimum) * 1.0
-    return[(item - minimum)/minmax for item in col]
+def normalize(column, instance):
+    maximum = max(column)
+    minimum = min(column)
+    minmax = (maximum - minimum) * 1.0    
+    column_normed = []
+    
+    for item in column:
+        column_normed.append((item - minimum)/minmax)
+    instance_normed = (instance - minimum)/minmax
+    return  column_normed, instance_normed
 
 
 def select_class_label(top_k_rows):
 
-    return 'Label'
-
-
+    # print(stats.mode(top_k_rows[:, 5][0]))
+    mode = stats.mode(top_k_rows[:, 5] [0])
+    return mode[0]
 def linear_regression_classification(table, xIndex, yIndex, k):  # step 1
 
     print_double_line('STEP 1: Linear Regression MPG Classifier')
@@ -255,9 +240,9 @@ def main():
     # linear_regression_classification(table, 6, 0, 5)  # Step 1
 
     knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3)
-    predictive_accuracy(table, 6, 0, 10)                    # Step 3
+    # predictive_accuracy(table, 6, 0, 10)                    # Step 3
 
-    stratified_k_folds(table, 6, 0, 10)
+    # stratified_k_folds(table, 6, 0, 10)
 
 
 
