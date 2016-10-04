@@ -7,10 +7,8 @@ from scipy.spatial import distance as dist_lib
 from operator import sub
 
 
-
 from hw1 import read_csv, maximum, get_column_as_floats
 from hw2 import remove_incomplete_rows, regression_line, COLUMN_NAMES
-
 
 
 # table is an instance of a table
@@ -91,8 +89,8 @@ def distance(row, instance):
     # distances = dist_lib.euclidean(comp_row, comp_instance)
 # def distance(row, instance, n):
 
-#     return math.sqrt(sum([((row[index]-instance[index]) ** 2) for index in n]))
 
+#     return math.sqrt(sum([((row[index]-instance[index]) ** 2) for index in n]))
 
 
 def normalize(col):
@@ -272,6 +270,7 @@ def main():
 
     knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3)
     predictive_accuracy(table, 6, 0, 10)                    # Step 3
+
 
 
 
