@@ -1,12 +1,22 @@
 import random
+<<<<<<< HEAD
 import numpy
 import math
+=======
+import numpy as numpy
+>>>>>>> 9752ecfe87d73d26e05b285fa1260765a429d6f4
 from random import shuffle
 from scipy.spatial import distance as dist_lib
 from operator import sub
 
+<<<<<<< HEAD
 from hw1 import read_csv, maximum, get_column_as_floats
 from hw2 import remove_incomplete_rows, regression_line, COLUMN_NAMES
+=======
+from hw1 import read_csv
+from hw2 import remove_incomplete_rows, regression_line
+
+>>>>>>> 9752ecfe87d73d26e05b285fa1260765a429d6f4
 
 # table is an instance of a table
 # instance in the row with the missing attribute we are predicting
@@ -28,12 +38,10 @@ def get_linear_classification(instance, xIndex, slope, intercept):  # Part 1
     return (slope * float(instance[xIndex])) + intercept  # predict y-variable based on the x-variable
 
 
-
 # table is the table.
 # n is the index of the attribute to classify
 # instance - trying to classify
 # k - size of comparision set
-
 def knn_classifier(table, n, instance, k):  # Step 2
     training_set = numpy.array(random.sample(table, table.shape[0] * 2/3))
     sub_training_set = training_set[:, [0, 1, 4, 5]].astype(float)
@@ -60,6 +68,12 @@ def knn_classifier(table, n, instance, k):  # Step 2
     # print(distances)
     # print('normalized distances:')
     # print(distances_normed)
+
+
+    for row in training_set:
+        distances.append([distance(row, instance, []), row])
+
+    distances.sort(key=lambda x: x[0])
     top_k_rows = distances[:k]
     label = select_class_label(top_k_rows)
 
@@ -81,6 +95,7 @@ def distance(row, instance):
 # def distance(row, instance, n):
 
 #     return math.sqrt(sum([((row[index]-instance[index]) ** 2) for index in n]))
+
 
 
 def normalize(col):
@@ -112,43 +127,120 @@ def classification_map(value, map=[13, 14, 16, 19, 23, 26, 30, 36, 44]):
             return index + 1
 
 
-def predictive_accuracy(table, xIndex, yIndex):  # Step 3
+def construct_confusion_matrix_knn(small_partition, large_partition, xIndex, yIndex, k):
 
-    init = [[0]*10]*10
+    init = [[0] * 10] * 10
     confusion = numpy.array(init)
-
-    partitions = holdout_partition(table)
-
-    reg = regression_line(partitions[0], xIndex, yIndex)  # get Linear Regression
     total = 0
 
-    for row in partitions[1]:
+    for row in small_partition:
 
-        c = classification_map(get_linear_classification(row, xIndex, reg[0], reg[1]))
-        r = classification_map(row[0])-1
+        c = classification_map(knn_classifier(large_partition, [0, 1, 2], row, k))
+        r = classification_map(row[0]) - 1
         confusion[r][c] += 1
         total += 1
 
-    for row in confusion:
-        print row
-
-    # print_double_line('STEP 3: Predictive Accuracy')
-    # print '\n\tRandomSubsample(k=10, 2:1 Train / Test)'
-    # print '\t\tLinear Regression: accuracy = 0.??, error rate = 0.??'
-    # print '\t\tk Nearest Neighbors: accuracy = 0.??, error rate = 0.??'
-    # print '\tStratified 10-Fold Cross Validation'
-    # print '\t\tLinear Regression: accuracy = 0.??, error rate =  0.??'
-    # print '\t\tk Nearest Neighbors: accuracy = 0.??, error rate = 0.??'
+    return numpy.matrix(confusion).tolist()
 
 
-def holdout_partition(table):
+def construct_confusion_matrix(small_partition, large_partition, xIndex, yIndex, k):
+
+    init = [[0] * 10] * 10
+    confusion = numpy.array(init)
+    total = 0
+
+    reg = regression_line(large_partition, xIndex, yIndex)  # get Linear Regression
+
+    for row in small_partition:
+
+        c = classification_map(get_linear_classification(row, xIndex, reg[0], reg[1]))
+        r = classification_map(row[0]) - 1
+        confusion[r][c] += 1
+        total += 1
+
+    return numpy.matrix(confusion).tolist()
+
+
+def stratified_k_folds_knn(table, xIndex, yIndex, k):  # Step 3
+
+    partition_len = len(table)/k
+    partitions = [table[i:i + partition_len] for i in range(0, len(table), partition_len)]
+
+    init = [[0] * 10] * 10
+    confusion = numpy.matrix(init)
+
+    for part in partitions:
+        temp = []
+        for p in partitions:
+            if part is not p:
+                temp += p
+        confusion += construct_confusion_matrix_knn(part, temp, 6, 0, k)
+    matrix = numpy.squeeze(numpy.asarray(confusion))
+
+    return matrix.tolist()
+
+
+def stratified_k_folds(table, xIndex, yIndex, k):  # Step 3
+
+    partition_len = len(table)/k
+    partitions = [table[i:i + partition_len] for i in range(0, len(table), partition_len)]
+
+    init = [[0] * 10] * 10
+    confusion = numpy.matrix(init)
+
+    for part in partitions:
+        temp = []
+        for p in partitions:
+            if part is not p:
+                temp += p
+        confusion += construct_confusion_matrix(part, temp, 6, 0, k)
+    matrix = numpy.squeeze(numpy.asarray(confusion))
+
+    return matrix.tolist()
+
+
+def get_accuracy_of_confusion(matrix):
+
+    matrix = matrix
+    total = (sum([sum(row) for row in matrix]))
+    accuracies = []
+
+    for i in range(len(matrix)):
+        row = matrix[i][:]
+        col = [r[i] for r in matrix]
+        row.pop(i)
+        col.pop(i)
+        accuracies.append((total-(sum(col)+sum(row)))/float(total))
+
+    return round(sum(accuracies)/float(len(accuracies)),2)
+
+
+def predictive_accuracy(table, xIndex, yIndex, k):  # Step 3
+
+    lrg_accuracy_rs = holdout_partition(table, xIndex, yIndex, k)
+    lrg_accuracy_st = get_accuracy_of_confusion(stratified_k_folds(table, xIndex, yIndex, k))
+
+    print_double_line('STEP 3: Predictive Accuracy')
+    print '\n\tRandomSubsample(k=10, 2:1 Train / Test)'
+    print '\t\tLinear Regression: accuracy = ' + str(lrg_accuracy_rs) + ', error rate = ' + str(1 - lrg_accuracy_rs)
+    print '\t\tk Nearest Neighbors: accuracy = 0.??, error rate = 0.??'
+    print '\tStratified 10-Fold Cross Validation'
+    print '\t\tLinear Regression: accuracy = ' + str(lrg_accuracy_st) + ', error rate = ' + str(1 - lrg_accuracy_st)
+    print '\t\tk Nearest Neighbors: accuracy = 0.??, error rate = 0.??'
+
+
+def holdout_partition(table, xIndex, yIndex, k):
 
     rand = table[:]  # copy table
-    shuffle(rand)  # shuffle table
+    part = (len(rand) * 2) / 3  # find partition
+    accuracies = []
+    for i in range(k/2):
 
-    part = (len(rand)*2)/3  # find partition
+        shuffle(rand)  # shuffle table
+        matrix = construct_confusion_matrix(rand[0: part], rand[part:], xIndex, yIndex, k)
+        accuracies.append(get_accuracy_of_confusion(matrix))
 
-    return rand[0: part], rand[part:]
+    return sum(accuracies) / float(len(accuracies))
 
 
 def print_double_line(string):
@@ -158,11 +250,16 @@ def print_double_line(string):
 def main():
 
     table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
+    table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
 
     # linear_regression_classification(table, 6, 0, 5)  # Step 1
 
     knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3)
-    # predictive_accuracy(table, 6, 0)                        # Step 3
+    predictive_accuracy(table, 6, 0, 10)                    # Step 3
+
+    stratified_k_folds(table, 6, 0, 10)
+
+
 
 if __name__ == '__main__':
     main()
