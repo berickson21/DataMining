@@ -9,7 +9,7 @@ from scipy.spatial import distance as dist_lib
 from operator import sub
 
 from hw1 import read_csv, maximum, get_column_as_floats
-from hw2 import remove_incomplete_rows, regression_line, COLUMN_NAMES
+from hw2 import remove_incomplete_rows, knn, regression_line, COLUMN_NAMES
 
 
 # table is an instance of a table
@@ -38,7 +38,7 @@ def get_linear_classification(instance, xIndex, slope, intercept):  # Part 1
 # k - size of comparision set
 def knn_classifier(table, n, instance, k):  # Step 2
 
-    return randint(14, 31)
+    return 1
 
 
 # row is a row
@@ -101,7 +101,7 @@ def construct_confusion_matrix_knn(small_partition, large_partition, k):
 
     for row in small_partition:
 
-        c = classification_map(knn_classifier(large_partition, [0, 1, 2], row, k))
+        c = classification_map(knn(large_partition, [0, 1, 2], row, k))
         r = classification_map(row[0]) - 1
         confusion[r][c] += 1
         total += 1
@@ -201,12 +201,14 @@ def predictive_accuracy(table, xIndex, yIndex, k):  # Step 3
 def holdout_partition(table, xIndex, yIndex, k):
 
     accuracies = []
-    k /= 10
+    k /= 5
+    l = (len(table)*2)/3
     for i in range(k):
 
         rand = h_partition(table)
         matrix = construct_confusion_matrix(rand[0], rand[1], xIndex, yIndex, k)
         accuracies.append(get_accuracy_of_confusion(matrix)[0])
+
 
     return round(sum(accuracies) / float(len(accuracies)), 2)
 
@@ -227,7 +229,7 @@ def h_partition(table):
 def holdout_partition_knn(table, xIndex, yIndex, k):
 
     accuracies = []
-    k /= 10
+    k /= 5
     for i in range(k):
 
         rand = h_partition(table)
@@ -270,7 +272,7 @@ def print_confusion(matrix):
 def main():
 
     table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
-    # table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
+    table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
 
     linear_regression_classification(table, 6, 0, 5)        # Step 1
     knn_classification(table, 5)                            # Step 2
