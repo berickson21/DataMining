@@ -1,10 +1,18 @@
 import random
+
+#import numpy
+import math
+
 import numpy as numpy
 from random import shuffle
 from scipy.spatial import distance as dist_lib
+from operator import sub
 
-from hw1 import read_csv
-from hw2 import remove_incomplete_rows, regression_line
+
+from hw1 import read_csv, maximum, get_column_as_floats
+from hw2 import remove_incomplete_rows, regression_line, COLUMN_NAMES
+
+
 
 
 # table is an instance of a table
@@ -32,7 +40,43 @@ def get_linear_classification(instance, xIndex, slope, intercept):  # Part 1
 # instance - trying to classify
 # k - size of comparision set
 def knn_classifier(table, n, instance, k):  # Step 2
-    return 1
+
+    training_set = numpy.array(random.sample(table, table.shape[0] * 2/3))
+    sub_training_set = training_set[:, [0, 1, 4, 5]].astype(float)
+    print(instance)
+    # print_double_line('STEP 2: k=' + k + 'Nearest Neighbor MPG Classifier')
+
+    distances = []
+    # training_set_normed = numpy.empty(sub_training_set.shape)
+    sub_training_set[:, [0]] = normalize(sub_training_set[:, [0]])
+    sub_training_set[:, [2]] = normalize(sub_training_set[:, [2]])
+    sub_training_set[:, [3]] = normalize(sub_training_set[:, [3]])
+    instance_subset = numpy.array([instance[0], instance[1], instance[4], instance[5]])
+    print(instance_subset)
+
+    # for row in sub_training_set[[1], :]:
+    #     print("==================================================================================================")
+    #     print('instance is' + str(instance))
+    #     print(row)
+    #     new_row = distance(row, instance)
+    #     distances.append(new_row)
+
+    # distances.sort()
+    # print('non-normalized distances:')
+    # print(distances)
+    # print('normalized distances:')
+    # print(distances_normed)
+
+
+    for row in training_set:
+        distances.append([distance(row, instance, []), row])
+
+    distances.sort(key=lambda x: x[0])
+    top_k_rows = distances[:k]
+    label = select_class_label(top_k_rows)
+
+    return label
+
 
 
 # row is a row
@@ -40,20 +84,24 @@ def knn_classifier(table, n, instance, k):  # Step 2
 # indices is list of indexes
 # returns normalized distance for the instance to the given row
 
-def distance(row, instance, indices):
-    comp_row = row[indices]
-    comp_instance = instance[indices]
-    distances = dist_lib.euclidean(comp_row, comp_instance)
-    print (numpy.linalg.norm(distances))
-    return (numpy.linalg.norm(distances))
+def distance(row, instance):
+    print(row)
+    internal_list = map(numpy.subtract, numpy.asarray(row, dtype=float), numpy.asarray(instance, dtype=float))
+    # print('internal distance:' + str(internal_list))
+    euclidean_distance = math.sqrt(sum(x**2 for x in internal_list))
+    print(euclidean_distance)
+    # distances = dist_lib.euclidean(comp_row, comp_instance)
+# def distance(row, instance, n):
+
+#     return math.sqrt(sum([((row[index]-instance[index]) ** 2) for index in n]))
+
 
 
 def normalize(col):
-
-    maximum = max(col)
-    minimum = min(col)
-    rng = maximum - minimum
-    return[(item - minimum)/float(rng) for item in col]
+    maximum = numpy.max(col)
+    minimum = numpy.min(col)
+    minmax = (maximum - minimum) * 1.0
+    return[(item - minimum)/minmax for item in col]
 
 
 def select_class_label(top_k_rows):
@@ -219,12 +267,14 @@ def print_double_line(string):
 
 def main():
 
+    table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
     table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
-    table = numpy.array(table1)
 
     # linear_regression_classification(table, 6, 0, 5)  # Step 1
-    # knn_classifier(table, 0, random.choice(table), len(table[0]) * 2 / 3) # Step 2
+
+    knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3)
     predictive_accuracy(table, 6, 0, 10)                    # Step 3
+
 
 
 if __name__ == '__main__':
