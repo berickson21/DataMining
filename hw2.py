@@ -4,6 +4,7 @@ matplotlib.use('pdf')
 
 import matplotlib.pyplot as pyplot
 import numpy as numpy
+from random import randint
 
 from hw1 import read_csv, get_column, get_column_as_floats
 from scipy import stats as stats
@@ -363,6 +364,11 @@ def remove_incomplete_rows(table):
             newTable.append(row)
 
     return newTable
+
+
+def knn(table, n, instance, k):  # Step 2
+
+    return randint(14, 31)
 
 
 def main():
