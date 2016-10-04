@@ -2,6 +2,7 @@ import random
 import math
 import numpy as numpy
 from tabulate import tabulate
+from random import randint
 
 from random import shuffle
 from scipy.spatial import distance as dist_lib
@@ -37,41 +38,7 @@ def get_linear_classification(instance, xIndex, slope, intercept):  # Part 1
 # k - size of comparision set
 def knn_classifier(table, n, instance, k):  # Step 2
 
-    # training_set = numpy.array(random.sample(table, table.shape[0] * 2/3))
-    # sub_training_set = training_set[:, [0, 1, 4, 5]].astype(float)
-    # print(instance)
-    # # print_double_line('STEP 2: k=' + k + 'Nearest Neighbor MPG Classifier')
-    #
-    # distances = []
-    # # training_set_normed = numpy.empty(sub_training_set.shape)
-    # sub_training_set[:, [0]] = normalize(sub_training_set[:, [0]])
-    # sub_training_set[:, [2]] = normalize(sub_training_set[:, [2]])
-    # sub_training_set[:, [3]] = normalize(sub_training_set[:, [3]])
-    # instance_subset = numpy.array([instance[0], instance[1], instance[4], instance[5]])
-    # print(instance_subset)
-
-    # for row in sub_training_set[[1], :]:
-    #     print("==================================================================================================")
-    #     print('instance is' + str(instance))
-    #     print(row)
-    #     new_row = distance(row, instance)
-    #     distances.append(new_row)
-    #
-    # distances.sort()
-    # print('non-normalized distances:')
-    # print(distances)
-    # print('normalized distances:')
-    # print(distances_normed)
-    #
-    #
-    # for row in training_set:
-    #     distances.append([distance(row, instance, []), row])
-    #
-    # distances.sort(key=lambda x: x[0])
-    # top_k_rows = distances[:k]
-    # label = select_class_label(top_k_rows)
-
-    return 1
+    return randint(14, 31)
 
 
 # row is a row
@@ -85,10 +52,6 @@ def distance(row, instance):
     euclidean_distance = math.sqrt(sum(x**2 for x in internal_list))
     print(euclidean_distance)
     # distances = dist_lib.euclidean(comp_row, comp_instance)
-# def distance(row, instance, n):
-
-
-#     return math.sqrt(sum([((row[index]-instance[index]) ** 2) for index in n]))
 
 
 def normalize(col):
@@ -110,6 +73,16 @@ def linear_regression_classification(table, xIndex, yIndex, k):  # step 1
     for instance in random.sample(table, k):
         print '\tinstance: ' + str(instance)
         print '\tclass: ' + str(classification_map(get_linear_regression_classification(table, instance, xIndex, yIndex))) \
+              + ' actual: ' + str(classification_map(instance[0]))
+
+
+def knn_classification(table, k):  # step 2
+
+    print_double_line('STEP 2: k=5 Nearest Neighbor MPG Classifier')
+
+    for instance in random.sample(table, k):
+        print '\tinstance: ' + str(instance)
+        print '\tclass: ' + str(classification_map(knn_classifier(table, [0, 1, 2], instance, k))) \
               + ' actual: ' + str(classification_map(instance[0]))
 
 
@@ -227,26 +200,38 @@ def predictive_accuracy(table, xIndex, yIndex, k):  # Step 3
 
 def holdout_partition(table, xIndex, yIndex, k):
 
-    rand = table[:]  # copy table
-    part = (len(rand) * 2) / 3  # find partition
     accuracies = []
-    for i in range(k/2):
+    k /= 10
+    for i in range(k):
 
-        #shuffle(rand)  # shuffle table
-        matrix = construct_confusion_matrix(rand[0: part], rand[part:], xIndex, yIndex, k)
+        rand = h_partition(table)
+        matrix = construct_confusion_matrix(rand[0], rand[1], xIndex, yIndex, k)
         accuracies.append(get_accuracy_of_confusion(matrix)[0])
 
     return round(sum(accuracies) / float(len(accuracies)), 2)
 
 
+def h_partition(table):
+
+    random = table[:]
+    n = len(table)
+    for i in range(n):
+
+       j = randint(0, n-1)
+       random[i], random[j] = random[j], random[i]
+
+    part = (n * 2)/3
+    return random[0:part], random[part:]
+
+
 def holdout_partition_knn(table, xIndex, yIndex, k):
 
-    part = (len(table) * 2) / 3  # find partition
     accuracies = []
-    for i in range(k/2):
-        rand = table[:]
-        #shuffle(rand)  # Shuffle messes up table after 5
-        matrix = construct_confusion_matrix_knn(rand[0: part], rand[part:], k)
+    k /= 10
+    for i in range(k):
+
+        rand = h_partition(table)
+        matrix = construct_confusion_matrix_knn(rand[0], rand[1], k)
         accuracies.append(get_accuracy_of_confusion(matrix)[0])
 
     return round(sum(accuracies) / float(len(accuracies)), 2)
@@ -287,9 +272,8 @@ def main():
     table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
     # table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
 
-    linear_regression_classification(table, 6, 0, 5)      # Step 1
-
-    knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3)
+    linear_regression_classification(table, 6, 0, 5)        # Step 1
+    knn_classification(table, 5)                            # Step 2
     predictive_accuracy(table, 6, 0, 10)                    # Step 3
     confusion_matrix(table, 6, 0, 10)                       # Step 4
 
