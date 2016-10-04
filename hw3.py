@@ -1,17 +1,15 @@
 import random
-
-#import numpy
 import math
-
 import numpy as numpy
+
 from random import shuffle
 from scipy.spatial import distance as dist_lib
 from operator import sub
 
 
+
 from hw1 import read_csv, maximum, get_column_as_floats
 from hw2 import remove_incomplete_rows, regression_line, COLUMN_NAMES
-
 
 
 
@@ -274,6 +272,7 @@ def main():
 
     knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3)
     predictive_accuracy(table, 6, 0, 10)                    # Step 3
+
 
 
 
