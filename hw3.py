@@ -39,14 +39,13 @@ def knn_classifier(table, n, instance, k):  # Step 2
     training_set = numpy.array(random.sample(table, table.shape[0] * 2/3))
     sub_training_set = training_set[:, [0, 1, 4, 5]].astype(float)
     distances = []
-    
+
     instance_subset = map(float, numpy.array([instance[0], instance[1], instance[4], instance[5]]))
     t_cat = numpy.empty(sub_training_set.shape)
     for i in range(4):
         t = sub_training_set[:, [i]].flatten()
         t_cat[:, i], instance_subset[i] = normalize(t, instance_subset[i])
 
-    
     for row in t_cat:
         distances.append(distance(row, instance_subset))
     t_cat1 = numpy.append(t_cat, training_set[:, [0]].astype(float), axis=1)
@@ -55,13 +54,38 @@ def knn_classifier(table, n, instance, k):  # Step 2
 
     top_k_rows = t_cat2[:5]
     label = select_class_label(top_k_rows)
-    print('=================================================================================')
-    print('STEP 2: k=5 nearest neighbor MPG Classifier')
-    print('=================================================================================')
-    print('instance:' + str(instance))
-    print('class:' + str(label) + ' ' + 'actual: ' + str(instance[0]))
+
+    print_double_line('STEP 2: k=5 nearest neighbor MPG Classifier')
+
+    print('\tinstance:' + str(instance))
+    print('\tclass:' + str(classification_map(label)) + ' ' + 'actual: ' + str(classification_map(instance[0])))
     return label
 
+
+# table is the table.
+# n is the index of the attribute to classify
+# instance - trying to classify
+# k - size of comparision set
+def knn_classifier_predictor(training_set, instance):  # Step 2
+    training_set = numpy.array(training_set)
+    sub_training_set = training_set[:, [0, 1, 4, 5]].astype(float)
+    distances = []
+
+    instance_subset = map(float, numpy.array([instance[0], instance[1], instance[4], instance[5]]))
+    t_cat = numpy.empty(sub_training_set.shape)
+    for i in range(4):
+        t = sub_training_set[:, [i]].flatten()
+        t_cat[:, i], instance_subset[i] = normalize(t, instance_subset[i])
+
+    for row in t_cat:
+        distances.append(distance(row, instance_subset))
+    t_cat1 = numpy.append(t_cat, training_set[:, [0]].astype(float), axis=1)
+    t_cat2 = numpy.append(t_cat1, numpy.vstack(distances), axis=1)
+    t_cat2.sort(axis=1)
+
+    top_k_rows = t_cat2[:5]
+    label = select_class_label(top_k_rows)
+    return label
 
 # row is a row
 # instance is a row
@@ -85,14 +109,14 @@ def normalize(column, instance):
     for item in column:
         column_normed.append((item - minimum)/minmax)
     instance_normed = (instance - minimum)/minmax
-    return  column_normed, instance_normed
+    return column_normed, instance_normed
 
 
 def select_class_label(top_k_rows):
 
-    # print(stats.mode(top_k_rows[:, 5][0]))
-    mode = stats.mode(top_k_rows[:, 5] [0])
-    return mode[0]
+    return stats.mode([row[5] for row in top_k_rows])[0][0]
+
+
 def linear_regression_classification(table, xIndex, yIndex, k):  # step 1
 
     print_double_line('STEP 1: Linear Regression MPG Classifier')
@@ -109,7 +133,7 @@ def knn_classification(table, k):  # step 2
 
     for instance in random.sample(table, k):
         print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(classification_map(knn_classifier(table, [0, 1, 2], instance, k))) \
+        print '\tclass: ' + str(classification_map(knn_classifier_predictor(table, instance))) \
               + ' actual: ' + str(classification_map(instance[0]))
 
 
@@ -128,7 +152,7 @@ def construct_confusion_matrix_knn(small_partition, large_partition, k):
 
     for row in small_partition:
 
-        c = classification_map(knn(large_partition, [0, 1, 2], row, k))
+        c = classification_map(knn(large_partition, [0, 1, 2, 4],row, k))
         r = classification_map(row[0]) - 1
         confusion[r][c] += 1
         total += 1
@@ -236,7 +260,6 @@ def holdout_partition(table, xIndex, yIndex, k):
         matrix = construct_confusion_matrix(rand[0], rand[1], xIndex, yIndex, k)
         accuracies.append(get_accuracy_of_confusion(matrix)[0])
 
-
     return round(sum(accuracies) / float(len(accuracies)), 2)
 
 
@@ -301,9 +324,9 @@ def main():
     table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
     table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
 
-  
-    linear_regression_classification(table, 6, 0, 5)        # Step 1    
-    knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3) #Step 2
+    linear_regression_classification(table, 6, 0, 5)  # Step 1
+    # knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3) #Step 2
+    knn_classification(table, 5)
     predictive_accuracy(table, 6, 0, 10)                    # Step 3
     confusion_matrix(table, 6, 0, 10)                       # Step 4
 
