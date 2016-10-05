@@ -3,10 +3,10 @@ import numpy
 import math
 from tabulate import tabulate
 from random import randint
-from random import shuffle
-from scipy.spatial import distance as dist_lib
+
+
 from scipy import stats
-from operator import sub
+
 from hw1 import read_csv, maximum, get_column_as_floats
 from hw2 import remove_incomplete_rows, knn, regression_line, COLUMN_NAMES
 
@@ -55,10 +55,6 @@ def knn_classifier(table, n, instance, k):  # Step 2
     top_k_rows = t_cat2[:5]
     label = select_class_label(top_k_rows)
 
-    print_double_line('STEP 2: k=5 nearest neighbor MPG Classifier')
-
-    print('\tinstance:' + str(instance))
-    print('\tclass:' + str(classification_map(label)) + ' ' + 'actual: ' + str(classification_map(instance[0])))
     return label
 
 
@@ -133,7 +129,7 @@ def knn_classification(table, k):  # step 2
 
     for instance in random.sample(table, k):
         print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(classification_map(knn_classifier_predictor(table, instance))) \
+        print '\tclass: ' + str(classification_map(knn_classifier(table,[0, 1, 3], instance, k))) \
               + ' actual: ' + str(classification_map(instance[0]))
 
 
@@ -152,7 +148,7 @@ def construct_confusion_matrix_knn(small_partition, large_partition, k):
 
     for row in small_partition:
 
-        c = classification_map(knn(large_partition, [0, 1, 2, 4],row, k))
+        c = classification_map(knn_classifier(numpy.array(large_partition), [0, 1, 3], row, k))
         r = classification_map(row[0]) - 1
         confusion[r][c] += 1
         total += 1
@@ -325,7 +321,6 @@ def main():
     table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
 
     linear_regression_classification(table, 6, 0, 5)  # Step 1
-    # knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3) #Step 2
     knn_classification(table, 5)
     predictive_accuracy(table, 6, 0, 10)                    # Step 3
     confusion_matrix(table, 6, 0, 10)                       # Step 4
