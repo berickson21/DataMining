@@ -36,30 +36,30 @@ def get_linear_classification(instance, xIndex, slope, intercept):  # Part 1
 # instance - trying to classify
 # k - size of comparision set
 def knn_classifier(table, n, instance, k):  # Step 2
-    training_set = numpy.array(random.sample(table, table.shape[0] * 2/3))
+    two_arrays = numpy.split(table, [len(table)*2/3])
+    training_set = numpy.array(random.sample(two_arrays[0], len(two_arrays[0])))
+    test_set = numpy.array(random.sample(two_arrays[1], len(two_arrays[1])))
     sub_training_set = training_set[:, [0, 1, 4, 5]].astype(float)
     distances = []
-    
     instance_subset = map(float, numpy.array([instance[0], instance[1], instance[4], instance[5]]))
     t_cat = numpy.empty(sub_training_set.shape)
-    for i in range(4):
+    for i in range(1, 3):
         t = sub_training_set[:, [i]].flatten()
         t_cat[:, i], instance_subset[i] = normalize(t, instance_subset[i])
 
     
     for row in t_cat:
         distances.append(distance(row, instance_subset))
-    t_cat1 = numpy.append(t_cat, training_set[:, [0]].astype(float), axis=1)
-    t_cat2 = numpy.append(t_cat1, numpy.vstack(distances), axis=1)
-    t_cat2.sort(axis=1)
+    t_cat1 = numpy.append(t_cat, numpy.vstack(distances), axis=1)
+    t_cat1.sort(axis=1)
 
-    top_k_rows = t_cat2[:5]
+    top_k_rows = t_cat1[:4]
     label = select_class_label(top_k_rows)
-    print('=================================================================================')
-    print('STEP 2: k=5 nearest neighbor MPG Classifier')
-    print('=================================================================================')
-    print('instance:' + str(instance))
-    print('class:' + str(label) + ' ' + 'actual: ' + str(instance[0]))
+    # print('=================================================================================')
+    # print('STEP 2: k=5 nearest neighbor MPG Classifier')
+    # print('=================================================================================')
+    # print('instance:' + str(instance))
+    # print('class:' + str(label) + ' ' + 'actual: ' + str(instance[0]))
     return label
 
 
@@ -91,7 +91,7 @@ def normalize(column, instance):
 def select_class_label(top_k_rows):
 
     # print(stats.mode(top_k_rows[:, 5][0]))
-    mode = stats.mode(top_k_rows[:, 5] [0])
+    mode = stats.mode(top_k_rows[:, 0] [0])
     return mode[0]
 def linear_regression_classification(table, xIndex, yIndex, k):  # step 1
 
@@ -303,7 +303,7 @@ def main():
 
   
     linear_regression_classification(table, 6, 0, 5)        # Step 1    
-    knn_classifier(table, 0, random.choice(table), len(table[0]) * 2/3) #Step 2
+    knn_classifier(table, 0, random.choice(table), 5) #Step 2
     predictive_accuracy(table, 6, 0, 10)                    # Step 3
     confusion_matrix(table, 6, 0, 10)                       # Step 4
 
