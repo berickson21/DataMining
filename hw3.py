@@ -1,13 +1,12 @@
 import random
 import numpy
 import math
+import csv
 from tabulate import tabulate
 from random import randint
 
-
 from scipy import stats
 
-from hw1 import read_csv, maximum, get_column_as_floats
 from hw2 import remove_incomplete_rows, knn, regression_line, COLUMN_NAMES
 
 
@@ -314,16 +313,28 @@ def print_confusion(matrix):
 
     print tabulate(matrix, headers=headers, tablefmt="rst")
 
+def read_csv(filename):
+    the_file = open(filename, 'r')
+    the_reader = csv.reader(the_file, dialect='excel')
+    table = []
+
+    for row in the_reader:
+        if len(row) > 0:
+            table.append(row)
+    the_file.close()
+
+    return table
 
 def main():
 
     table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
-    table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
 
     linear_regression_classification(table, 6, 0, 5)  # Step 1
     knn_classification(table, 5)
     predictive_accuracy(table, 6, 0, 10)                    # Step 3
     confusion_matrix(table, 6, 0, 10)                       # Step 4
+
+    #test
 
 
 if __name__ == '__main__':

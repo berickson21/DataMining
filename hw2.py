@@ -4,15 +4,44 @@ matplotlib.use('pdf')
 
 import matplotlib.pyplot as pyplot
 import numpy as numpy
+import csv
 from random import randint
 
-from hw1 import read_csv, get_column, get_column_as_floats
 from scipy import stats as stats
 
 
 COLUMN_NAMES = ['MPG', 'Cylinders', 'Displacement', 'Horsepower', 'Weight',
                 'Acceleration', 'Model Year', 'Origin', 'Car Name', 'MSRP']
 
+def get_column(table, index):
+    values = []
+
+    for rows in table:
+        if 'NA' != rows[index]:
+            values.append(rows[index])
+
+    return values
+
+
+def get_column_as_floats(table, index):
+    vals = []
+
+    for rows in table:
+        if rows[index] != 'NA':
+            vals.append(float(rows[index]))
+    return vals
+
+def read_csv(filename):
+    the_file = open(filename, 'r')
+    the_reader = csv.reader(the_file, dialect='excel')
+    table = []
+
+    for row in the_reader:
+        if len(row) > 0:
+            table.append(row)
+    the_file.close()
+
+    return table
 
 def scatter_plot(table, xIndex, yIndex):
 
