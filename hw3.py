@@ -35,10 +35,7 @@ def get_linear_classification(instance, xIndex, slope, intercept):  # Part 1
 # n is the index of the attribute to classify
 # instance - trying to classify
 # k - size of comparision set
-def knn_classifier(table, n, instance, k):  # Step 2
-    two_arrays = numpy.split(table, [len(table)*2/3])
-    training_set = numpy.array(random.sample(two_arrays[0], len(two_arrays[0])))
-    test_set = numpy.array(random.sample(two_arrays[1], len(two_arrays[1])))
+def knn_classifier(training_set, n, instance, k):  # Step 2
     sub_training_set = training_set[:, [0, 1, 4, 5]].astype(float)
     distances = []
     instance_subset = map(float, numpy.array([instance[0], instance[1], instance[4], instance[5]]))
@@ -70,10 +67,12 @@ def knn_classifier(table, n, instance, k):  # Step 2
 def distance(row, instance):
     distances = []
     indices = [0, 1, 2, 3]
+    accumulator=[]
     for i in indices:
-        distances.append((row[i] - instance[i])**2)
+        accumulator.append((row[i] + instance[i])**2)
+    return math.sqrt(sum(accumulator)) 
     
-    return math.sqrt(sum(distances))
+    
 
 
 def normalize(column, instance):
@@ -299,13 +298,16 @@ def print_confusion(matrix):
 def main():
 
     table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
-    table1 = remove_incomplete_rows(read_csv('auto-data.txt'))
+    two_arrays = numpy.split(table, [len(table)*2/3])
+    training_set = numpy.array(random.sample(two_arrays[0], len(two_arrays[0])))    
+    test_set = numpy.array(random.sample(two_arrays[1], len(two_arrays[1])))
 
-  
-    linear_regression_classification(table, 6, 0, 5)        # Step 1    
-    knn_classifier(table, 0, random.choice(table), 5) #Step 2
-    predictive_accuracy(table, 6, 0, 10)                    # Step 3
-    confusion_matrix(table, 6, 0, 10)                       # Step 4
+    linear_regression_classification(table, 6, 0, 5)# Step 1    
+    
+    for item in test_set:                           # Step 2
+        knn_classifier(table, 0, item, 5)          
+    # predictive_accuracy(table, 6, 0, 10)            # Step 3
+    # confusion_matrix(table, 6, 0, 10)               # Step 4
 
 
 if __name__ == '__main__':
