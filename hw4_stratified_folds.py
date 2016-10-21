@@ -1,15 +1,16 @@
-from hw2 import read_csv, remove_incomplete_rows
-from hw3 import print_confusion
-from hw4_Naive_Bayes import NaiveBayes
 from copy import deepcopy
 from random import shuffle
 
 import numpy as numpy
 
+from hw2 import read_csv, remove_incomplete_rows
+from hw3 import print_confusion
+from hw4_Naive_Bayes import NaiveBayes
+
 
 class StratifiedFolds:
 
-    def __init__(self, table):
+    def __init__(self, table, indexes, label_index):
         self.table = deepcopy(table)
 
     def stratified_k_folds(self, k):
@@ -37,7 +38,7 @@ class StratifiedFolds:
 
         indexes = [1, 4, 6]
 
-        classifier = self.classification(training_set, indexes, 0)
+        classifier = self.classification(training_set, indexes, )
 
         init = [[0] * num_labels] * num_labels
         confusion = numpy.array(init)
@@ -69,17 +70,3 @@ class StratifiedFolds:
     @staticmethod
     def classification(training_set, indexes, label_index):
         return NaiveBayes(training_set, indexes, label_index)
-
-
-def main():
-
-    table = remove_incomplete_rows(read_csv('auto-data.txt'))
-    s = StratifiedFolds(table)
-    matrix = s.stratified_k_folds(10)
-    print s.get_accuracy_of_confusion(matrix)[0]
-    for row in matrix:
-        print row
-    print_confusion(matrix)
-
-
-main()
