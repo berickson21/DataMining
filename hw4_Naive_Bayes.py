@@ -13,10 +13,9 @@ class NaiveBayes:
         self.label_index = label_index
 
         self.categorize_table()
-        self.labels = list(
-            set(get_column(self.training_set, self.label_index)))
-        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label)) / float(len(training_set))]
-                                      for label in self.labels]
+        self.labels = list(set(get_column(self.training_set, self.label_index)))
+        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))\
+            / float(len(training_set))] for label in self.labels]
 
     def classify(self, instance):
 
@@ -27,8 +26,7 @@ class NaiveBayes:
 
         for i, label in enumerate(self.labels):
             for index in self.indexes:
-                probabilities[i][
-                    1] *= self.probability(label, inst[index], index)
+                probabilities[i][1] *= self.probability(label, inst[index], index)
 
         probabilities.sort(key=lambda x: x[1], reverse=True)
 
@@ -86,9 +84,9 @@ def naive_bayes(table):  # step 1
         print '\tclass: ' + str(n.classify(instance)) + ' actual: ' + \
             str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
 
-def main():		
- 		
-     table = remove_incomplete_rows(read_csv('auto-data.txt'))		
-     # naive_bayes(table)		
- 		
- main()		
+def main():
+
+    table = remove_incomplete_rows(read_csv('auto-data.txt'))
+    naive_bayes(table)
+
+main
