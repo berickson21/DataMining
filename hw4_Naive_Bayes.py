@@ -76,13 +76,13 @@ class NaiveBayes:
         return table
 
 
-def naive_bayes(table):  # step 1
+    def naive_bayes(table):  # step 1
 
-    print_double_line('STEP 1:Naive Bayes Classifier')
-    n = NaiveBayes(table, [1, 4, 6], 0)
+        print_double_line('STEP 1:Naive Bayes Classifier')
+        n = NaiveBayes(table, [1, 4, 6], 0)
 
-    for instance in sample(table, 5):
-        print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(n.classify(instance)) \
-              + ' actual: ' + \
-            str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+        for instance in sample(table, 5):
+            print '\tinstance: ' + str(instance)
+            print '\tclass: ' + str(n.classify(instance)) \
+                    + ' actual: ' + \
+                str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
