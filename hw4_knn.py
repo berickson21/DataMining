@@ -18,7 +18,7 @@ class KnnClassifier:
         self.label_index = label_index
         self.k = k
 
-        # self.normalize_table()
+        self.normalize_table()
 
     def knn_classifier(self, instance):
 
@@ -35,7 +35,8 @@ class KnnClassifier:
 
     def dist(self, instance, row):
 
-        return round(sqrt(sum([((float(instance[i]) - float(row[i]))**2) for i in self.indexes])), 3)
+        return round(sqrt(sum([((float(instance[i]) - float(row[i]))**2)\
+            for i in self.indexes])), 3)
 
     @staticmethod
     def get_label(top_k_neighbors):
@@ -65,7 +66,8 @@ class KnnClassifier:
             maximum = max(column)
             minimum = min(column)
             spread = maximum - minimum
-            new_instance[index] = round((float(new_instance[index]) - minimum) / float(spread), 3)
+            new_instance[index] = round((float(new_instance[index]) - minimum)\
+                / float(spread), 3)
 
         return new_instance
 
@@ -78,7 +80,7 @@ def main():
 
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(classification_map(k.knn_classifier(instance))) \
+        print '\tclass: ' + str(classification_map(k.knn_classifier(instance)))\
             + ' actual: ' + str(classification_map(instance[0]))
 
 main()
