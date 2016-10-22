@@ -324,3 +324,18 @@ def read_csv(filename):
     the_file.close()
 
     return table
+
+def main():
+
+    table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
+
+    linear_regression_classification(table, 6, 0, 5)  # Step 1
+    knn_classification(table, 5)
+    predictive_accuracy(table, 6, 0, 10)                    # Step 3
+    confusion_matrix(table, 6, 0, 10)                       # Step 4
+
+    #test
+
+
+if __name__ == '__main__':
+    main()
