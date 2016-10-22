@@ -3,9 +3,9 @@ from random import sample
 from hw3 import (print_confusion, print_double_line, read_csv,
                  remove_incomplete_rows)
 from hw4_knn import KnnClassifier
-from hw4_Naive_Bayes import NaiveBayes
+from hw4_Naive_Bayes import ContinuousNaiveBayes, NaiveBayes
 from hw4_Naive_Bayes_Titanic import NaiveBayesTitanic
-from hw4_stratified_folds import StratifiedFolds
+from hw4_stratified_folds import ContinuousStratifiedFolds, StratifiedFolds
 
 
 # from hw4_random_sampling import RandomSampling
@@ -46,7 +46,13 @@ def knn(table, indexes, label_index, k):
 
     print_double_line('K-nn Stratified k-Folds Predictive Accuracy')
 
-    s = StratifiedFolds(table, indexes, label_index)
+    s = StratifiedFolds(table, indexes, label_index) \
+              + ' actual: ' + str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+
+    print_double_line('Step 1b: Predictive Accuracy')
+
+    s = StratifiedFolds(table, [1, 4, 6], 0)
+
     stratified_folds_matrix = s.stratified_k_folds(10)
 
     stratified_folds_accuracy = 1
@@ -69,11 +75,12 @@ def naive_bayes_titanic(table, indexes, label_index):  # step 1
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
         print '\tclass: ' + str(n.classify(instance)) \
-              + ' actual: ' + str(n.convert_yes_no(instance[3]))
+                    + ' actual: ' + str(n.convert_yes_no(instance[3]))
 
     print_double_line('Naive Bayes Stratified k-Folds Predictive Accuracy')
 
     s = StratifiedFolds(table, indexes, label_index)
+    
     stratified_folds_matrix = s.stratified_k_folds(10)
 
     stratified_folds_accuracy = 1
@@ -84,7 +91,29 @@ def naive_bayes_titanic(table, indexes, label_index):  # step 1
     print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = ' + str(1 - stratified_folds_accuracy)
 
     print_double_line('Naive Bayes Confusion Matrix Predictive Accuracy')
+def cont_naive_bayes(table):  # step 2
 
+    print_double_line('STEP 2a: Continuous Naive Bayes Classifier')
+    n = ContinuousNaiveBayes(table[25:], [1, 6], [4], 0)
+
+    for instance in sample(table, 5):
+        print '\tinstance: ' + str(instance)
+        print '\tclass: ' + str(n.classify(instance)) \
+              + ' actual: ' + str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+
+    print_double_line('Step 2b: Predictive Accuracy')
+
+    s = ContinuousStratifiedFolds(table, [1, 6], [4], 0)
+    stratified_folds_matrix = s.stratified_k_folds(10)
+
+    stratified_folds_accuracy = 1
+
+    print '\tRandomSubsample(k=10, 2:1 Train / Test)'
+    print '\t\taccuracy = ' + str(1) + ', error rate = ' + str(0)
+    print '\tStratified 10-Fold Cross Validation'
+    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = ' + str(1-stratified_folds_accuracy)
+
+    print_double_line('STEP 2c: Confusion Matrix')
     print_confusion(stratified_folds_matrix)
 
 
