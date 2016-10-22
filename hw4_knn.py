@@ -23,7 +23,6 @@ class KnnClassifier:
     def knn_classifier(self, instance):
 
         inst = self.normalize_instance(instance)
-
         distance = []
 
         for row in self.training_set:
@@ -71,3 +70,18 @@ class KnnClassifier:
                 (float(new_instance[index]) - minimum) / float(spread), 3)
 
         return new_instance
+
+
+def main():
+
+     table = remove_incomplete_rows(read_csv('auto-data.txt'))
+
+     k = KnnClassifier(table, [1, 4, 5], 0, 5)
+
+     for instance in sample(table, 5):
+         print '\tinstance: ' + str(instance)
+         print '\tclass: ' + str(classification_map(k.knn_classifier(instance))) \
+               + ' actual: ' + str(classification_map(instance[0]))
+
+
+ main()
