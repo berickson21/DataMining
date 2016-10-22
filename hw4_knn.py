@@ -54,8 +54,7 @@ class KnnClassifier:
         spread = maximum - minimum
 
         for row in self.training_set:
-            row[index] = round(
-                (float(row[index]) - minimum) / float(spread), 3)
+            row[index] = round((float(row[index]) - minimum) / float(spread), 3)
 
     def normalize_instance(self, instance):
 
@@ -66,22 +65,20 @@ class KnnClassifier:
             maximum = max(column)
             minimum = min(column)
             spread = maximum - minimum
-            new_instance[index] = round(
-                (float(new_instance[index]) - minimum) / float(spread), 3)
+            new_instance[index] = round((float(new_instance[index]) - minimum) / float(spread), 3)
 
         return new_instance
 
 
 def main():
 
-     table = remove_incomplete_rows(read_csv('auto-data.txt'))
+    table = remove_incomplete_rows(read_csv('auto-data.txt'))
 
-     k = KnnClassifier(table, [1, 4, 5], 0, 5)
+    k = KnnClassifier(table, [1, 4, 5], 0, 5)
 
-     for instance in sample(table, 5):
-         print '\tinstance: ' + str(instance)
-         print '\tclass: ' + str(classification_map(k.knn_classifier(instance))) \
-               + ' actual: ' + str(classification_map(instance[0]))
+    for instance in sample(table, 5):
+        print '\tinstance: ' + str(instance)
+        print '\tclass: ' + str(classification_map(k.knn_classifier(instance))) \
+            + ' actual: ' + str(classification_map(instance[0]))
 
-
- main()
+main()
