@@ -96,4 +96,4 @@ def main():
     knn(table_titanic, [0, 1, 2], 3, 10)
     naive_bayes_titanic(table_titanic, [0, 1, 2], 3)
 
-main()
+main()main()

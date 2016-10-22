@@ -6,6 +6,10 @@ from random import shuffle
 
 import numpy as numpy
 
+from hw2 import get_column, read_csv, remove_incomplete_rows
+from hw3 import print_confusion
+from hw4_Naive_Bayes import ContinuousNaiveBayes, NaiveBayes
+
 
 class StratifiedFolds:
 
