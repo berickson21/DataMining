@@ -74,6 +74,50 @@ class NaiveBayes:
         return table
 
 
+class ContinuousNaiveBayes(NaiveBayes):
+
+    def __init__(self, training_set, cat_indexes, cont_indexes, label_index):
+        NaiveBayes.__init__(self, training_set, cat_indexes, label_index)
+        self.cont_indexes = cont_indexes
+
+    def classify(self, instance):
+
+        inst = instance[:]
+        self.categorize_instance(inst)
+
+        probabilities = deepcopy(self.initial_probabilities)
+
+        for i, label in enumerate(self.labels):
+            for index in self.indexes:
+                probabilities[i][1] *= self.probability(label, inst[index], index)
+            print probabilities
+            for index in self.cont_indexes:
+                probabilities[i][1] *= self.cont_probability(label, inst[index], index)
+
+        probabilities.sort(key=lambda x: x[1], reverse=True)
+        return probabilities[0][0]
+
+
+    def cont_probability(self, label, value, value_index):
+
+        table = self.group_by(0, label)
+        column = get_column_as_floats(table, value_index)
+
+        mean = sum(column)/float(len(column))
+        sdev = numpy.std(column)
+
+        first, second = 0, 0
+
+        if sdev > 0:
+            first = 1 / (math.sqrt(2 * math.pi) * sdev)
+            second = math.e ** (-((float(value) - mean) ** 2) / (2 * (sdev ** 2)))
+        return first * second
+
+    def categorize_instance(self, row):
+
+        row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
+
+
 def naive_bayes(table):  # step 1
 
     print_double_line('STEP 1:Naive Bayes Classifier')
@@ -89,4 +133,4 @@ def main():
     table = remove_incomplete_rows(read_csv('auto-data.txt'))
     naive_bayes(table)
 
-main
+main()

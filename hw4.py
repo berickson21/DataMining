@@ -49,7 +49,7 @@ def knn(table, indexes, label_index, k):
 
     s = StratifiedFolds(table, indexes, label_index) \
         + ' actual: ' + \
-        str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+        str(n.convert(instance[3], [0, 1, 2]))
 
     print_double_line('Step 1b: Predictive Accuracy')
 

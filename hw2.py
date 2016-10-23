@@ -465,5 +465,5 @@ def main():
 
     pyplot.close("all")
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

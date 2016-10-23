@@ -271,5 +271,5 @@ def main():
     replace_data(table, [0, 2, 3, 4, 5, 9], 6)
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
