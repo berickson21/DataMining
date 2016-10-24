@@ -1,7 +1,10 @@
+import math
 from copy import deepcopy
 from random import sample
 
-from hw1 import get_column
+import numpy
+
+from hw1 import get_column, get_column_as_floats
 from hw3 import print_double_line, read_csv, remove_incomplete_rows
 
 
@@ -117,20 +120,9 @@ class ContinuousNaiveBayes(NaiveBayes):
 
         row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
 
-
-def naive_bayes(table):  # step 1
-
-    print_double_line('STEP 1:Naive Bayes Classifier')
-    n = NaiveBayes(table, [1, 4, 6], 0)
-
-    for instance in sample(table, 5):
-        print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(n.classify(instance)) + ' actual: ' + \
-            str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
-
 def main():
 
-    table = remove_incomplete_rows(read_csv('auto-data.txt'))
-    naive_bayes(table)
+    c = ContinuousNaiveBayes()
 
-main()
+if __name__ == '__main__':
+    main()

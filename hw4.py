@@ -10,7 +10,6 @@ from hw4_stratified_folds import ContinuousStratifiedFolds, StratifiedFolds
 
 # from hw4_random_sampling import RandomSampling
 
-
 def naive_bayes(table, indexes, label_index):  # step 1
 
     print_double_line('Naive Bayes Classifier')
@@ -48,8 +47,7 @@ def knn(table, indexes, label_index, k):
     print_double_line('K-nn Stratified k-Folds Predictive Accuracy')
 
     s = StratifiedFolds(table, indexes, label_index) \
-        + ' actual: ' + \
-        str(n.convert(instance[3], [0, 1, 2]))
+        + ' actual: ' + str(n.convert(instance[3], [0, 1, 2]))
 
     print_double_line('Step 1b: Predictive Accuracy')
 
@@ -68,7 +66,6 @@ def knn(table, indexes, label_index, k):
     print_double_line(' K-nn Confusion Matrix Predictive Accuracy')
 
     print_confusion(stratified_folds_matrix)
-
 
 def naive_bayes_titanic(table, indexes, label_index):  # step 1
 
