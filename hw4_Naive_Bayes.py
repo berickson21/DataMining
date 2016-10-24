@@ -1,9 +1,11 @@
-from copy import deepcopy
-from hw1 import get_column, get_column_as_floats
-
-
 import math
-import numpy as numpy
+from copy import deepcopy
+from random import sample
+
+import numpy
+
+from hw1 import get_column, get_column_as_floats
+from hw3 import print_double_line, read_csv, remove_incomplete_rows
 
 
 class NaiveBayes:
@@ -15,8 +17,8 @@ class NaiveBayes:
 
         self.categorize_table()
         self.labels = list(set(get_column(self.training_set, self.label_index)))
-        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))/float(len(training_set))]
-                                      for label in self.labels]
+        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))\
+            / float(len(training_set))] for label in self.labels]
 
     def classify(self, instance):
 
@@ -43,7 +45,7 @@ class NaiveBayes:
             if str(row[value_index]) == str(value):
                 count += 1
 
-        return count/float(len(temp))
+        return count / float(len(temp))
 
     def categorize_table(self):
 
@@ -117,7 +119,6 @@ class ContinuousNaiveBayes(NaiveBayes):
     def categorize_instance(self, row):
 
         row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
-
 
 def main():
 
