@@ -4,7 +4,7 @@ from random import sample
 
 from scipy import stats
 
-from hw1 import get_column_as_floats
+from hw1 import get_column
 from hw2 import read_csv, remove_incomplete_rows
 from hw3 import classification_map
 
@@ -18,15 +18,12 @@ class KnnClassifier:
         self.label_index = label_index
         self.k = k
 
-        self.normalize_table()
-
     def knn_classifier(self, instance):
 
-        inst = self.normalize_instance(instance)
         distance = []
-
+        print('KNN')
         for row in self.training_set:
-            distance.append([self.dist(inst, row), row[self.label_index]])
+            distance.append([self.dist(instance, row), row[self.label_index]])
 
         distance.sort(key=lambda x: x[0])
         top_k_neighbors = distance[0:self.k]
@@ -35,52 +32,27 @@ class KnnClassifier:
 
     def dist(self, instance, row):
 
-        return round(sqrt(sum([((float(instance[i]) - float(row[i]))**2)\
-            for i in self.indexes])), 3)
+        accumulator = 0
+
+        for i in self.indexes:
+            if instance[i] == row[i]:
+                accumulator += 1
+            print('accumulator: ' + str(accumulator))
+
+        return accumulator
 
     @staticmethod
     def get_label(top_k_neighbors):
         return stats.mode([top[1] for top in top_k_neighbors])[0][0]
 
-    def normalize_table(self):
+def convert(self, val):
 
-        for index in self.indexes:
-            self.normalize_column(index)
+    if val == 'yes':
+        return 0
+    else:
+        return 1
 
-    def normalize_column(self, index):
-
-        column = get_column_as_floats(self.training_set, index)
-        maximum = max(column)
-        minimum = min(column)
-        spread = maximum - minimum
-
-        for row in self.training_set:
-            row[index] = round((float(row[index]) - minimum) / float(spread), 3)
-
-    def normalize_instance(self, instance):
-
-        new_instance = instance[:]
-
-        for index in self.indexes:
-            column = get_column_as_floats(self.table, index)
-            maximum = max(column)
-            minimum = min(column)
-            spread = maximum - minimum
-            new_instance[index] = round((float(new_instance[index]) - minimum)\
-                / float(spread), 3)
-
-        return new_instance
-
-
-def main():
-
-    table = remove_incomplete_rows(read_csv('auto-data.txt'))
-
-    k = KnnClassifier(table, [1, 4, 5], 0, 5)
-
-    for instance in sample(table, 5):
-        print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(classification_map(k.knn_classifier(instance)))\
-            + ' actual: ' + str(classification_map(instance[0]))
-
-main()
+#             if float(value) < item:
+#                 return i + 1
+#             elif float(value) > cutoffs[-1]:
+#                 return len(cutoffs) + 1

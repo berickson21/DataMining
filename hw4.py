@@ -17,9 +17,8 @@ def naive_bayes(table, indexes, label_index):  # step 1
 
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(n.classify(instance)) \
-              + ' actual: ' + \
-            str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+        print '\tclass: ' + str(n.classify(instance)) + ' actual: '\
+            + str(n.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
 
     print_double_line('Naive Bayes Stratified k-Folds Predictive Accuracy')
 
@@ -42,12 +41,17 @@ def naive_bayes(table, indexes, label_index):  # step 1
 def knn(table, indexes, label_index, k):
 
     print_double_line('K-Nearest Neighbors Classifier')
-    k = KnnClassifier(table, indexes, label_index, k)
+    k_nn = KnnClassifier(table, indexes, label_index, k)
+
+    # for instance in sample(table, 5):
+    #     print '\tinstance: ' + str(instance)
+    #     print '\tclass: ' + str(k_nn.knn_classifier(instance)) + ' actual: '\
+    #         +(str(instance[3]))
 
     print_double_line('K-nn Stratified k-Folds Predictive Accuracy')
 
     s = StratifiedFolds(table, indexes, label_index) \
-        + ' actual: ' + str(n.convert(instance[3], [0, 1, 2]))
+        + ' actual: ' + str(instance[3])
 
     print_double_line('Step 1b: Predictive Accuracy')
 
@@ -120,6 +124,14 @@ def cont_naive_bayes(table):  # step 2
     print_double_line('STEP 2c: Confusion Matrix')
     print_confusion(stratified_folds_matrix)
 
+# Converts the string 'yes' or 'no' into a 0 or a 1.
+@staticmethod
+def convert_yes_no(value):
+
+    if value == 'yes':
+        return 0
+    else:
+        return 1
 
 def main():
 
@@ -129,4 +141,6 @@ def main():
     knn(table_titanic, [0, 1, 2], 3, 10)
     naive_bayes_titanic(table_titanic, [0, 1, 2], 3)
 
-main()
+if __name__ == '__main__':
+    main()
+    
