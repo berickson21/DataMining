@@ -1,10 +1,3 @@
-from hw3 import print_confusion, print_double_line, remove_incomplete_rows, read_csv
-from hw4_Naive_Bayes import NaiveBayes, ContinuousNaiveBayes
-from hw4_stratified_folds import StratifiedFolds, ContinuousStratifiedFolds
-# from hw4_random_sampling import RandomSampling
-
-from random import sample
-
 
 def naive_bayes(table):  # step 1
 
