@@ -15,13 +15,12 @@ class KnnClassifier:
         self.table = training_set
         self.training_set = deepcopy(training_set)
         self.indexes = indexes
-        self.label_index = label_index
+        self.label_index = 3
         self.k = k
 
     def knn_classifier(self, instance):
 
         distance = []
-        print('KNN')
         for row in self.training_set:
             distance.append([self.dist(instance, row), row[self.label_index]])
 
@@ -33,11 +32,12 @@ class KnnClassifier:
     def dist(self, instance, row):
 
         accumulator = 0
-
+        # print('Instance: ' + str(instance))
+        # print('Row: ' + str(row))
+        # print('Indexes: ' + str(self.indexes))
         for i in self.indexes:
             if instance[i] == row[i]:
                 accumulator += 1
-            print('accumulator: ' + str(accumulator))
 
         return accumulator
 
@@ -45,12 +45,12 @@ class KnnClassifier:
     def get_label(top_k_neighbors):
         return stats.mode([top[1] for top in top_k_neighbors])[0][0]
 
-def convert(self, val):
+    def convert(self, val):
 
-    if val == 'yes':
-        return 0
-    else:
-        return 1
+        if val == 'yes':
+            return 0
+        else:
+            return 1
 
 #             if float(value) < item:
 #                 return i + 1

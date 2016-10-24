@@ -1,11 +1,10 @@
 from random import sample
 
-from hw3 import (print_confusion, print_double_line, read_csv,
+from hw3 import (print_confusion, print_confusion_titanic,  print_double_line, read_csv,
                  remove_incomplete_rows)
 from hw4_knn import KnnClassifier
-from hw4_Naive_Bayes import ContinuousNaiveBayes, NaiveBayes
-from hw4_Naive_Bayes_Titanic import NaiveBayesTitanic
-from hw4_stratified_folds import ContinuousStratifiedFolds, StratifiedFolds
+from hw4_Naive_Bayes import ContinuousNaiveBayes, NaiveBayes, NaiveBayesTitanic
+from hw4_stratified_folds import ContinuousStratifiedFolds, StratifiedFolds, StratifiedFoldsKnn
 
 
 # from hw4_random_sampling import RandomSampling
@@ -23,6 +22,7 @@ def naive_bayes(table, indexes, label_index):  # step 1
     print_double_line('Naive Bayes Stratified k-Folds Predictive Accuracy')
 
     s = StratifiedFolds(table, indexes, label_index)
+    
     stratified_folds_matrix = s.stratified_k_folds(10)
 
     stratified_folds_accuracy = 1
@@ -43,21 +43,18 @@ def knn(table, indexes, label_index, k):
     print_double_line('K-Nearest Neighbors Classifier')
     k_nn = KnnClassifier(table, indexes, label_index, k)
 
-    # for instance in sample(table, 5):
-    #     print '\tinstance: ' + str(instance)
-    #     print '\tclass: ' + str(k_nn.knn_classifier(instance)) + ' actual: '\
-    #         +(str(instance[3]))
+    for instance in sample(table, 5):
+        print '\tinstance: ' + str(instance)
+        print '\tclass: ' + str(k_nn.knn_classifier(instance)) + ' actual: '\
+            +(str(instance[3]))
 
     print_double_line('K-nn Stratified k-Folds Predictive Accuracy')
 
-    s = StratifiedFolds(table, indexes, label_index) \
-        + ' actual: ' + str(instance[3])
+    s = StratifiedFoldsKnn(table, indexes, label_index)
+    stratified_folds_matrix = s.stratified_k_folds(10)
+
 
     print_double_line('Step 1b: Predictive Accuracy')
-
-    s = StratifiedFolds(table, [1, 4, 6], 0)
-
-    stratified_folds_matrix = s.stratified_k_folds(10)
 
     stratified_folds_accuracy = 1
 
@@ -69,7 +66,7 @@ def knn(table, indexes, label_index, k):
 
     print_double_line(' K-nn Confusion Matrix Predictive Accuracy')
 
-    print_confusion(stratified_folds_matrix)
+    print_confusion_titanic(stratified_folds_matrix)
 
 def naive_bayes_titanic(table, indexes, label_index):  # step 1
 
@@ -79,7 +76,7 @@ def naive_bayes_titanic(table, indexes, label_index):  # step 1
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
         print '\tclass: ' + str(n.classify(instance)) \
-            + ' actual: ' + str(n.convert_yes_no(instance[3]))
+            + ' actual: ' + str(n.convert(instance[3]))
 
     print_double_line('Naive Bayes Stratified k-Folds Predictive Accuracy')
 
@@ -139,7 +136,7 @@ def main():
     table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
     naive_bayes(table, [1, 4, 6], 0)
     knn(table_titanic, [0, 1, 2], 3, 10)
-    naive_bayes_titanic(table_titanic, [0, 1, 2], 3)
+    # naive_bayes_titanic(table_titanic, [0, 1, 2], 3)
 
 if __name__ == '__main__':
     main()

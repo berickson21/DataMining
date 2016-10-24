@@ -57,8 +57,7 @@ class NaiveBayes:
         row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
         row[4] = str(self.convert(row[4], [1999, 2499, 2999, 3499]))
 
-    @staticmethod
-    def convert(value, cutoffs):
+    def convert(self, value, cutoffs):
 
         for i, item in enumerate(cutoffs):
             if float(value) < item:
@@ -119,3 +118,18 @@ class ContinuousNaiveBayes(NaiveBayes):
     def categorize_instance(self, row):
 
         row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
+
+
+class NaiveBayesTitanic(NaiveBayes):
+
+    def convert(self, val):
+
+        if val == 'yes':
+            return 0
+        else:
+            return 1
+        
+
+    def categorize_instance(self, row):
+
+        row[3] = self.convert(row[3])

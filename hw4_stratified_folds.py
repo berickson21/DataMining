@@ -3,6 +3,7 @@ from random import shuffle
 
 import numpy as numpy
 
+from hw4_knn import KnnClassifier
 from hw2 import get_column, read_csv, remove_incomplete_rows
 from hw3 import print_confusion
 from hw4_Naive_Bayes import ContinuousNaiveBayes, NaiveBayes
@@ -107,3 +108,43 @@ class ContinuousStratifiedFolds(StratifiedFolds):
 
     def classification(self, training_set):
         return ContinuousNaiveBayes(training_set, self.indexes, self.cont_indexes, self.label_index)
+
+class StratifiedFoldsKnn(StratifiedFolds):
+
+    def __init__(self, table, indexes, label_index):
+        self.table = deepcopy(table)
+
+        self.indexes = indexes
+        self.label_index = label_index
+
+        self.labels = [0, 1]
+
+        self.num_labels = 2
+
+    def convert_label(self, value):
+
+        if value == 'yes':
+            return 0
+        else:
+            return 1
+
+    def construct_confusion_matrix(self, test_set, training_set):
+
+        classifier = self.classification(training_set)
+
+        init = [[0] * self.num_labels] * self.num_labels
+        confusion = numpy.array(init)
+        total = 0
+
+        for instance in test_set:
+
+            c = int(classifier.convert(classifier.knn_classifier(instance)))
+            r = int(classifier.convert(instance[3]))
+
+            confusion[r-1][c-1] += 1
+            total += 1
+
+        return numpy.matrix(confusion).tolist()
+
+    def classification(self, training_set):
+        return KnnClassifier(training_set, self.indexes, self.label_index, 10)

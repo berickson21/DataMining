@@ -313,6 +313,19 @@ def print_confusion(matrix):
 
     print tabulate(matrix, headers=headers, tablefmt="rst")
 
+def print_confusion_titanic(matrix):
+
+    accuracies = get_accuracy_of_confusion(matrix)[1]
+
+    for i, row in enumerate(matrix):
+        row.insert(0, i+1)
+        row.append(sum(row[1:]))
+        row.append(round(accuracies[i], 2))
+
+    headers = ['Survived']+[str(i+1) for i in range(2)]+['Total', 'Recognition(%)']
+
+    print tabulate(matrix, headers=headers, tablefmt="rst")
+
 def read_csv(filename):
     the_file = open(filename, 'r')
     the_reader = csv.reader(the_file, dialect='excel')
