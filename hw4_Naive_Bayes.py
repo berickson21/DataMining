@@ -119,10 +119,3 @@ class ContinuousNaiveBayes(NaiveBayes):
     def categorize_instance(self, row):
 
         row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
-
-def main():
-
-    c = ContinuousNaiveBayes()
-
-if __name__ == '__main__':
-    main()
