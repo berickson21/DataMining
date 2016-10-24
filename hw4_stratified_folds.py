@@ -47,15 +47,9 @@ class StratifiedFolds:
         return matrix.tolist()
 
     def construct_confusion_matrix(self, test_set, training_set):
-<<<<<<< HEAD
 
         classifier = self.classification(training_set)
 
-=======
-
-        classifier = self.classification(training_set)
-
->>>>>>> refs/remotes/origin/b4
         init = [[0] * self.num_labels] * self.num_labels
         confusion = numpy.array(init)
         total = 0
@@ -105,8 +99,6 @@ class StratifiedFolds:
             elif float(value) > cutoffs[-1]:
                 return len(cutoffs) + 1
 
-<<<<<<< HEAD
-
 class ContinuousStratifiedFolds(StratifiedFolds):
 
     def __init__(self, table, cat_indexes, cont_indexes, label_index):
@@ -115,19 +107,3 @@ class ContinuousStratifiedFolds(StratifiedFolds):
 
     def classification(self, training_set):
         return ContinuousNaiveBayes(training_set, self.indexes, self.cont_indexes, self.label_index)
-=======
->>>>>>> refs/remotes/origin/b4
-
-class ContinuousStratifiedFolds(StratifiedFolds):
-
-    def __init__(self, table, cat_indexes, cont_indexes, label_index):
-        StratifiedFolds.__init__(self, table, cat_indexes, label_index)
-        self.cont_indexes = cont_indexes
-
-    def classification(self, training_set):
-        return ContinuousNaiveBayes(training_set, self.indexes, self.cont_indexes, self.label_index)
-
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/b4
