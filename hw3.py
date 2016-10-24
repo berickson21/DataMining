@@ -213,7 +213,6 @@ def stratified_k_folds(table, xIndex, yIndex, k):  # Step 3
 
 def get_accuracy_of_confusion(matrix):
 
-    matrix = matrix
     total = (sum([sum(row) for row in matrix]))
     accuracies = []
 
@@ -312,6 +311,7 @@ def print_confusion(matrix):
     headers = ['MPG']+[str(i+1) for i in range(10)]+['Total', 'Recognition(%)']
 
     print tabulate(matrix, headers=headers, tablefmt="rst")
+
 
 def read_csv(filename):
     the_file = open(filename, 'r')

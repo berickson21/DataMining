@@ -1,7 +1,8 @@
 from hw3 import print_confusion, print_double_line, remove_incomplete_rows, read_csv
 from hw4_Naive_Bayes import NaiveBayes, ContinuousNaiveBayes
 from hw4_stratified_folds import StratifiedFolds, ContinuousStratifiedFolds
-# from hw4_random_sampling import RandomSampling
+from hw4_random_sampling import RandomSampling, ContinuousRandomSampling
+
 
 from random import sample
 
@@ -21,12 +22,15 @@ def naive_bayes(table):  # step 1
     s = StratifiedFolds(table, [1, 4, 6], 0)
     stratified_folds_matrix = s.stratified_k_folds(10)
 
-    stratified_folds_accuracy = 1
+    random_sampling = RandomSampling(table, [1, 4, 6], 0, 10)
+    random_sampling_accuracy = round(random_sampling.random_sampling(),2)
+
+    stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
 
     print '\tRandomSubsample(k=10, 2:1 Train / Test)'
-    print '\t\taccuracy = ' + str(1) + ', error rate = ' + str(0)
+    print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(1 - random_sampling_accuracy)
     print '\tStratified 10-Fold Cross Validation'
-    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = ' + str(1-stratified_folds_accuracy)
+    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = ' + str(1 - stratified_folds_accuracy)
 
     print_double_line('STEP 1c: Confusion')
 
@@ -36,7 +40,7 @@ def naive_bayes(table):  # step 1
 def cont_naive_bayes(table):  # step 2
 
     print_double_line('STEP 2a: Continuous Naive Bayes Classifier')
-    n = ContinuousNaiveBayes(table[25:], [1, 6], [4], 0)
+    n = ContinuousNaiveBayes(table, [1, 6], [4], 0)
 
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
@@ -48,12 +52,15 @@ def cont_naive_bayes(table):  # step 2
     s = ContinuousStratifiedFolds(table, [1, 6], [4], 0)
     stratified_folds_matrix = s.stratified_k_folds(10)
 
-    stratified_folds_accuracy = 1
+    stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
+
+    random_sampling = ContinuousRandomSampling(table, [1, 6], [4], 0, 10)
+    random_sampling_accuracy = round(random_sampling.random_sampling(), 2)
 
     print '\tRandomSubsample(k=10, 2:1 Train / Test)'
-    print '\t\taccuracy = ' + str(1) + ', error rate = ' + str(0)
+    print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(1 - random_sampling_accuracy)
     print '\tStratified 10-Fold Cross Validation'
-    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = ' + str(1-stratified_folds_accuracy)
+    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = ' + str(1 - stratified_folds_accuracy)
 
     print_double_line('STEP 2c: Confusion Matrix')
 
