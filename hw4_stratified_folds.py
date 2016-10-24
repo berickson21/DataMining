@@ -1,10 +1,3 @@
-from hw2 import read_csv, remove_incomplete_rows, get_column
-from hw3 import print_confusion
-<<<<<<< HEAD
-from hw4_Naive_Bayes import NaiveBayes,ContinuousNaiveBayes
-=======
-from hw4_Naive_Bayes import NaiveBayes, ContinuousNaiveBayes
->>>>>>> refs/remotes/origin/b4
 from copy import deepcopy
 from random import shuffle
 
