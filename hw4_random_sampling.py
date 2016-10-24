@@ -9,35 +9,41 @@ import numpy as numpy
 
 class RandomSampling:
 
-    def __init__(self, training_set, num_labels, k):
-        self.training_set = deepcopy(training_set)
-        self.num_labels = num_labels
+    def __init__(self, table, indexes, label_index, k):
+        self.table = deepcopy(table)
+        self.indexes = indexes
+        self.label_index = label_index
+        self.labels = []
+
+        for row in self.table:
+            label = self.convert(row[self.label_index], [13, 14, 16, 19, 23, 26, 30, 36, 44])
+            if label not in self.labels:
+                self.labels.append(label)
+
+        self.num_labels = len(self.labels)
         self.k = k
 
     def random_sampling(self):
 
         accuracy = []
+        length = len(self.table)
 
         for i in range(self.k):
-            table = deepcopy(self.training_set)
-            length = len(table)
+            table = deepcopy(self.tabel)
             shuffle(table)
 
             test_set = table[(2*length)/3:]
             training_set = table[0:(2*length)/3]
 
             matrix = self.construct_confusion_matrix(test_set, training_set, self.k, self.num_labels)
-            print_confusion(matrix)
-            print ''
+
             accuracy.append(self.get_accuracy_of_confusion(matrix)[0])
 
         return sum(accuracy)/float(len(accuracy))
 
     def construct_confusion_matrix(self, test_set, training_set, k, num_labels):
 
-        indexes = [1, 4, 6]
-
-        classifier = self.classification(training_set, indexes, 0)
+        classifier = self.classification(training_set, self.indexes, self.label_index)
 
         init = [[0] * num_labels] * num_labels
         confusion = numpy.array(init)
@@ -69,6 +75,15 @@ class RandomSampling:
     @staticmethod
     def classification(training_set, indexes, label_index):
         return NaiveBayes(training_set, indexes, label_index)
+
+    @staticmethod
+    def convert(value, cutoffs):
+
+        for i, item in enumerate(cutoffs):
+            if float(value) < item:
+                return i + 1
+            elif float(value) > cutoffs[-1]:
+                return len(cutoffs) + 1
 
 
 def main():

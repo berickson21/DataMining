@@ -91,13 +91,11 @@ class ContinuousNaiveBayes(NaiveBayes):
         for i, label in enumerate(self.labels):
             for index in self.indexes:
                 probabilities[i][1] *= self.probability(label, inst[index], index)
-            print probabilities
             for index in self.cont_indexes:
                 probabilities[i][1] *= self.cont_probability(label, inst[index], index)
 
         probabilities.sort(key=lambda x: x[1], reverse=True)
         return probabilities[0][0]
-
 
     def cont_probability(self, label, value, value_index):
 
