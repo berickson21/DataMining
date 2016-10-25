@@ -2200,4 +2200,3 @@ first,adult,female,yes
 crew,adult,female,yes
 third,adult,female,yes
 first,adult,male,no
-0
