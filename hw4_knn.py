@@ -21,15 +21,13 @@ class KnnClassifier:
     def knn_classifier(self, instance):
 
         distance = []
-        d1 = []
         for row in self.training_set:
-            d1.append(self.dist(instance, row))
             distance.append([self.dist(instance, row), row])
-        
+
         self.normalize(distance)
         distance.sort(key=lambda x: x[0])
-        top_k_neighbors = distance[0:self.k]
 
+        top_k_neighbors = distance[0:self.k]
         return self.get_label(top_k_neighbors)
 
     def dist(self, instance, row):
@@ -40,9 +38,11 @@ class KnnClassifier:
         # print('Indexes: ' + str(self.indexes))
         for i in self.indexes:
             if instance[i] == row[i]:
+                accumulator += 0
+            else:
                 accumulator += 1
 
-        return accumulator
+        return sqrt(accumulator)
 
 
     def get_label(self, top_k_neighbors):

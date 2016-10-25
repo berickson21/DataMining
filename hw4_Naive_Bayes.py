@@ -122,14 +122,43 @@ class ContinuousNaiveBayes(NaiveBayes):
 
 class NaiveBayesTitanic(NaiveBayes):
 
+    def __init__(self, training_set, indexes, label_index):
+        self.training_set = deepcopy(training_set)
+        self.indexes = indexes
+        self.label_index = label_index
+
+        self.categorize_table_titanic()
+        self.labels = list(set(get_column(self.training_set, self.label_index)))
+        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))\
+            / float(len(training_set))] for label in self.labels]
+
     def convert(self, val):
 
         if val == 'yes':
             return 0
         else:
             return 1
-        
 
-    def categorize_instance(self, row):
+    def classify(self, instance):
+        
+        inst = deepcopy(instance)
+        # self.categorize_instance_titanic(inst)
+        print inst
+        probabilities = deepcopy(self.initial_probabilities)
+
+        for i, label in enumerate(self.labels):
+            for index in self.indexes:
+                probabilities[i][1] *= self.probability(label, inst[index], index)
+
+        probabilities.sort(key=lambda x: x[1], reverse=True)
+
+        return probabilities[0][0]
+
+    def categorize_table_titanic(self):
+
+        for row in self.training_set:
+            [self.categorize_instance_titanic(row) for row in self.training_set]
+
+    def categorize_instance_titanic(self, row):
 
         row[3] = self.convert(row[3])

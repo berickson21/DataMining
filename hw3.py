@@ -318,11 +318,14 @@ def print_confusion_titanic(matrix):
     accuracies = get_accuracy_of_confusion(matrix)[1]
 
     for i, row in enumerate(matrix):
-        row.insert(0, i+1)
+        if i == 0:
+            row.insert(0, 'Yes')
+        else:
+            row.insert(0, 'No')
         row.append(sum(row[1:]))
         row.append(round(accuracies[i], 2))
 
-    headers = ['Survived']+[str(i+1) for i in range(2)]+['Total', 'Recognition(%)']
+    headers = ['Survived']+['Yes', 'No']+['Total', 'Recognition(%)']
 
     print tabulate(matrix, headers=headers, tablefmt="rst")
 
