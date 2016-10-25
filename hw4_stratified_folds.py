@@ -152,10 +152,8 @@ class StratifiedFoldsKnn(StratifiedFolds):
 
         partition_len = len(new_table)/(k-1)
         partitions = [new_table[i:i + partition_len] for i in range(0, len(new_table), partition_len)]
-
         init = [[0] * self.num_labels] * self.num_labels
         confusion = numpy.matrix(init)
-
         for part in partitions:
             temp = []
             for p in partitions:
@@ -181,7 +179,7 @@ class StratifiedFoldsTitanic(StratifiedFoldsKnn):
 
         self.num_labels = 2
 
-    def construct_confusion_matrix_knn(self, test_set, training_set):
+    def construct_confusion_matrix_titanic(self, test_set, training_set):
 
         classifier = self.classification_titanic(training_set)
 
@@ -190,9 +188,7 @@ class StratifiedFoldsTitanic(StratifiedFoldsKnn):
         total = 0
 
         for instance in test_set:
-            print classifier.classify(instance)
             c = int(classifier.convert(classifier.classify(instance)[3]))
-            print 'C is: ' + str(c)
             r = int(classifier.convert(instance[3]))
             confusion[r-1][c-1] += 1
             total += 1
