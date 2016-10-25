@@ -137,8 +137,8 @@ class StratifiedFoldsKnn(StratifiedFolds):
         total = 0
 
         for instance in test_set:
-
-            c = int(classifier.convert(classifier.knn_classifier(instance)))
+            
+            c = int(classifier.convert(classifier.knn_classifier(instance)[3]))
             r = int(classifier.convert(instance[3]))
 
             confusion[r-1][c-1] += 1
@@ -148,3 +148,4 @@ class StratifiedFoldsKnn(StratifiedFolds):
 
     def classification(self, training_set):
         return KnnClassifier(training_set, self.indexes, self.label_index, 10)
+

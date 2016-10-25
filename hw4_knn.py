@@ -21,9 +21,12 @@ class KnnClassifier:
     def knn_classifier(self, instance):
 
         distance = []
+        d1 = []
         for row in self.training_set:
-            distance.append([self.dist(instance, row), row[self.label_index]])
-
+            d1.append(self.dist(instance, row))
+            distance.append([self.dist(instance, row), row])
+        
+        self.normalize(distance)
         distance.sort(key=lambda x: x[0])
         top_k_neighbors = distance[0:self.k]
 
@@ -41,8 +44,10 @@ class KnnClassifier:
 
         return accumulator
 
-    @staticmethod
-    def get_label(top_k_neighbors):
+
+    def get_label(self, top_k_neighbors):
+        for i in top_k_neighbors:
+            self.convert(i)
         return stats.mode([top[1] for top in top_k_neighbors])[0][0]
 
     def convert(self, val):
@@ -52,7 +57,13 @@ class KnnClassifier:
         else:
             return 1
 
-#             if float(value) < item:
-#                 return i + 1
-#             elif float(value) > cutoffs[-1]:
-#                 return len(cutoffs) + 1
+    def normalize(self, list):
+        column = [row[0] for row in list]
+        max_val = max(column)
+        # print 'max val: ' + str(max_val)
+        min_val = min(column)
+        # print 'min val: ' + str(min_val)
+
+        maxmin = (max_val - min_val) * 1.0
+        # print maxmin
+        return [(row[0] - min_val) / (maxmin) for row in list]
