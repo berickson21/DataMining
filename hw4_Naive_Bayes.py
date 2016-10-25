@@ -141,7 +141,6 @@ class NaiveBayesTitanic(NaiveBayes):
         
         inst = deepcopy(instance)
         # self.categorize_instance_titanic(inst)
-        print inst
         probabilities = deepcopy(self.initial_probabilities)
 
         for i, label in enumerate(self.labels):
