@@ -19,7 +19,7 @@ class StratifiedFolds:
 
         self.labels = []
 
-        for row in table:
+        for row in self.table:
             label = self.convert(row[self.label_index], [13, 14, 16, 19, 23, 26, 30, 36, 44])
             if label not in self.labels:
                 self.labels.append(label)
