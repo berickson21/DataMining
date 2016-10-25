@@ -1,9 +1,11 @@
-from copy import deepcopy
-from hw1 import get_column, get_column_as_floats
-
-
 import math
-import numpy as numpy
+from copy import deepcopy
+from random import sample
+
+import numpy
+
+from hw1 import get_column, get_column_as_floats
+from hw3 import print_double_line, read_csv, remove_incomplete_rows
 
 
 class NaiveBayes:
@@ -15,8 +17,8 @@ class NaiveBayes:
 
         self.categorize_table()
         self.labels = list(set(get_column(self.training_set, self.label_index)))
-        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))/float(len(training_set))]
-                                      for label in self.labels]
+        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))\
+            / float(len(training_set))] for label in self.labels]
 
     def classify(self, instance):
 
@@ -43,7 +45,7 @@ class NaiveBayes:
             if str(row[value_index]) == str(value):
                 count += 1
 
-        return count/float(len(temp))
+        return count / float(len(temp))
 
     def categorize_table(self):
 
@@ -55,8 +57,7 @@ class NaiveBayes:
         row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
         row[4] = str(self.convert(row[4], [1999, 2499, 2999, 3499]))
 
-    @staticmethod
-    def convert(value, cutoffs):
+    def convert(self, value, cutoffs):
 
         for i, item in enumerate(cutoffs):
             if float(value) < item:
@@ -117,9 +118,45 @@ class ContinuousNaiveBayes(NaiveBayes):
         row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
 
 
-def main():
+class NaiveBayesTitanic(NaiveBayes):
 
-    c = ContinuousNaiveBayes()
+    def __init__(self, training_set, indexes, label_index):
+        self.training_set = deepcopy(training_set)
+        self.indexes = indexes
+        self.label_index = label_index
 
-if __name__ == '__main__':
-    main()
+        self.categorize_table_titanic()
+        self.labels = list(set(get_column(self.training_set, self.label_index)))
+        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))\
+            / float(len(training_set))] for label in self.labels]
+
+    def convert(self, val):
+
+        if val == 'yes':
+            return 0
+        else:
+            return 1
+
+    def classify(self, instance):
+        
+        inst = deepcopy(instance)
+        # self.categorize_instance_titanic(inst)
+        print inst
+        probabilities = deepcopy(self.initial_probabilities)
+
+        for i, label in enumerate(self.labels):
+            for index in self.indexes:
+                probabilities[i][1] *= self.probability(label, inst[index], index)
+
+        probabilities.sort(key=lambda x: x[1], reverse=True)
+
+        return probabilities[0][0]
+
+    def categorize_table_titanic(self):
+
+        for row in self.training_set:
+            [self.categorize_instance_titanic(row) for row in self.training_set]
+
+    def categorize_instance_titanic(self, row):
+
+        row[3] = self.convert(row[3])

@@ -213,6 +213,7 @@ def stratified_k_folds(table, xIndex, yIndex, k):  # Step 3
 
 def get_accuracy_of_confusion(matrix):
 
+    matrix = matrix
     total = (sum([sum(row) for row in matrix]))
     accuracies = []
 
@@ -312,6 +313,21 @@ def print_confusion(matrix):
 
     print tabulate(matrix, headers=headers, tablefmt="rst")
 
+def print_confusion_titanic(matrix):
+
+    accuracies = get_accuracy_of_confusion(matrix)[1]
+
+    for i, row in enumerate(matrix):
+        if i == 0:
+            row.insert(0, 'Yes')
+        else:
+            row.insert(0, 'No')
+        row.append(sum(row[1:]))
+        row.append(round(accuracies[i], 2))
+
+    headers = ['Survived']+['Yes', 'No']+['Total', 'Recognition(%)']
+
+    print tabulate(matrix, headers=headers, tablefmt="rst")
 
 def read_csv(filename):
     the_file = open(filename, 'r')
@@ -324,18 +340,3 @@ def read_csv(filename):
     the_file.close()
 
     return table
-
-def main():
-
-    table = numpy.array(remove_incomplete_rows(read_csv('auto-data.txt')))
-
-    linear_regression_classification(table, 6, 0, 5)  # Step 1
-    knn_classification(table, 5)
-    predictive_accuracy(table, 6, 0, 10)                    # Step 3
-    confusion_matrix(table, 6, 0, 10)                       # Step 4
-
-    #test
-
-
-if __name__ == '__main__':
-    main()
