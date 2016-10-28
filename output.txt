@@ -1,0 +1,112 @@
+
+=========================================== 
+Naive Bayes Classifier
+===========================================
+
+	instance: ['15.0', '6', '250.0', '100.0', '3336', '17.0', '74', '1', 'chevrolet nova', '2919']
+	class: 4 actual: 3
+	instance: ['18.0', '8', '307.0', '130.0', '3504', '12.0', '70', '1', 'chevrolet chevelle malibu', '2881']
+	class: 3 actual: 4
+	instance: ['20.5', '6', '200.0', '95.00', '3155', '18.2', '78', '1', 'chevrolet malibu', '4394']
+	class: 5 actual: 5
+	instance: ['30.0', '4', '97.00', '67.00', '1985', '16.4', '77', '3', 'subaru dl', '3499']
+	class: 8 actual: 8
+	instance: ['14.0', '8', '318.0', '150.0', '4237', '14.5', '73', '1', 'plymouth fury gran sedan', '4064']
+	class: 2 actual: 3
+
+=========================================== 
+Naive Bayes Stratified k-Folds Predictive Accuracy
+===========================================
+
+	RandomSubsample(k=10, 2:1 Train / Test)
+		accuracy = 1, error rate = 0
+	Stratified 10-Fold Cross Validation
+		accuracy = 1, error rate = 0
+
+=========================================== 
+Naive Bayes Confusion Matrix Predictive Accuracy
+===========================================
+
+=====  ===  ===  ===  ===  ===  ===  ===  ===  ===  ====  =======
+  MPG    1    2    3    4    5    6    7    8    9    10    Total
+=====  ===  ===  ===  ===  ===  ===  ===  ===  ===  ====  =======
+    1    0    6    2    0    0    0    0    0    0     8     0.96
+    2    2    6    7    2    0    0    0    0    0    17     0.86
+    3    0   13   18    4    2    0    0    0    0    37     0.85
+    4    0    5   10   17   16    1    0    0    0    49     0.78
+    5    0    0    1   14   24    9    6    1    0    55     0.77
+    6    0    0    0    3    6   10    6    2    0    27     0.87
+    7    0    0    0    0    2    6   18    7    0    33     0.86
+    8    0    0    0    0    0    1    9   11    2    23     0.9
+    9    0    0    0    0    0    0    0    4    0     4     0.98
+=====  ===  ===  ===  ===  ===  ===  ===  ===  ===  ====  =======
+
+=========================================== 
+K-Nearest Neighbors Classifier
+===========================================
+
+	instance: ['third', 'adult', 'male', 'no']
+	class: no actual: no
+	instance: ['first', 'adult', 'female', 'no']
+	class: yes actual: no
+	instance: ['second', 'adult', 'male', 'no']
+	class: no actual: no
+	instance: ['crew', 'adult', 'male', 'no']
+	class: no actual: no
+	instance: ['first', 'adult', 'female', 'yes']
+	class: yes actual: yes
+
+=========================================== 
+K-nn Stratified k-Folds Predictive Accuracy
+===========================================
+
+	RandomSubsample(k=10, 2:1 Train / Test)
+		accuracy = 0.32, error rate = 0.68
+	Stratified 10-Fold Cross Validation
+		accuracy = 0.77, error rate = 0.23
+
+=========================================== 
+ K-nn Confusion Matrix Predictive Accuracy
+===========================================
+
+==========  =====  ====  =======  ================
+Survived      Yes    No    Total    Recognition(%)
+==========  =====  ====  =======  ================
+Yes           292   419      711              0.77
+No             80  1410     1490              0.77
+==========  =====  ====  =======  ================
+
+=========================================== 
+Naive Bayes Classifier
+===========================================
+
+	instance: ['first', 'child', 'male', 'no']
+	class: 1 actual: 1
+	instance: ['first', 'adult', 'female', 'yes']
+	class: 1 actual: 0
+	instance: ['third', 'adult', 'male', 'no']
+	class: 1 actual: 1
+	instance: ['third', 'adult', 'female', 'yes']
+	class: 1 actual: 0
+	instance: ['second', 'adult', 'male', 'yes']
+	class: 1 actual: 0
+
+=========================================== 
+Naive Bayes Stratified k-Folds Predictive Accuracy
+===========================================
+
+	RandomSubsample(k=10, 2:1 Train / Test)
+		accuracy = 0.32, error rate = 0.68
+	Stratified 10-Fold Cross Validation
+		accuracy = 0.76, error rate = 0.24
+
+=========================================== 
+Naive Bayes Confusion Matrix Predictive Accuracy
+===========================================
+
+==========  =====  ====  =======  ================
+Survived      Yes    No    Total    Recognition(%)
+==========  =====  ====  =======  ================
+Yes           402   309      711              0.76
+No            230  1260     1490              0.76
+==========  =====  ====  =======  ================
