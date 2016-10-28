@@ -1,10 +1,8 @@
 
-from hw3 import remove_incomplete_rows, read_csv
 from math import log
 
 from hw1 import get_column
-
-
+from hw3 import read_csv, remove_incomplete_rows
 
 
 class DecisionTree:
