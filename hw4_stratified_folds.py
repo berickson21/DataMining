@@ -169,6 +169,7 @@ class StratifiedFoldsKnn(StratifiedFolds):
     def classification_knn(self, training_set):
         return KnnClassifier(training_set, self.indexes, self.label_index, 10)
 
+
 class StratifiedFoldsTitanic(StratifiedFoldsKnn):
 
     def __init__(self, table, indexes, label_index):
