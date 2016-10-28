@@ -1,8 +1,8 @@
-
 from math import log
 
 from hw1 import get_column
 from hw3 import read_csv, remove_incomplete_rows
+from hw4_stratified_folds import StratifiedFolds, StratifiedFoldsTitanic
 
 
 class DecisionTree:
@@ -56,4 +56,3 @@ def main():
     table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
 
 main()
->>>>>>> refs/remotes/origin/Development
