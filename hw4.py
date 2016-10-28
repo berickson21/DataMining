@@ -8,6 +8,7 @@ from hw4_random_sampling import ContinuousRandomSampling, RandomSampling
 from hw4_stratified_folds import (ContinuousStratifiedFolds, StratifiedFolds,
                                   StratifiedFoldsKnn, StratifiedFoldsTitanic)
 
+
 def naive_bayes(table, indexes, label_index):  # step 1
 
     print_double_line('Naive Bayes Classifier')
