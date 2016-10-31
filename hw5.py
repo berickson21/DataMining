@@ -1,3 +1,4 @@
+
 from math import log
 
 from hw1 import get_column
@@ -50,14 +51,13 @@ class DecisionTree:
 
     def calc_enew(self, instances, att_index, class_index):
         
-        D = len(instances)
+        D =  len(instances)
         freqs = self.att_freqs(instances, att_index, class_index)
         E_new = 0
-        probs = 0
         
         for att_val in freqs:
             D_j = freqs[att_val][1]
-            probs - [(t / D_j) for (_, t) in freqs[att_val][0].items()]
+            probs = [(t / D_j) for (_, t) in freqs[att_val][0].items()]
         
         E_D_j = sum([p * log(p, 2) for p in probs])
         E_new += (D_j / D) * E_D_j
@@ -76,7 +76,23 @@ class DecisionTree:
             result[att_val][1] += 1
         return result
 
+    def same_class(self, instances, class_index):
+        # Returns true if all instances have same class value
 
+    def partition_stats(self, instances, class_index):
+        # List of stats: [[label1, occ1, total1], [label2, occ2, total2], …
+    
+    def partition_instances(self, instances, att_indexes, att_domains):
+        # {att_val1: part1, att_val2:part2, …}
+
+    def select_attribute(self, instances, att_indexes, class_index):
+        # picks the attribute to partition on
+
+    def tdit(self, instances, att_indexes, att_domains, class_index):
+        # The main algorithm for the tree
+
+    def tdit_classifier(decision_tree, instance):
+        # returns label (really just navigating the tree given the instance)
 class TitanicDecisionTree (DecisionTree):
 
     def __init__(self, training_set, att_indexes, label_index):
@@ -88,24 +104,6 @@ class AutoDecisionTree (DecisionTree):
     def __init__(self, training_set, att_indexes, label_index):
         DecisionTree.__init__(self, training_set, att_indexes, label_index)
 
-    def categorize_table(self):
-
-        for row in self.training_set:
-            self.categorize_instance(row)
-
-    def categorize_instance(self, row):
-
-        row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
-        row[4] = str(self.convert(row[4], [1999, 2499, 2999, 3499]))
-
-    def convert(self, value, cutoffs):
-
-        for i, item in enumerate(cutoffs):
-            if float(value) < item:
-                return i + 1
-            elif float(value) > cutoffs[-1]:
-                return len(cutoffs) + 1
-
 
 def main():
     table = remove_incomplete_rows(read_csv('auto-data.txt'))
@@ -115,4 +113,3 @@ def main():
     d.create_decision_tree()
 
 main()
-
