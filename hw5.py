@@ -5,9 +5,37 @@ from hw1 import get_column
 from hw3 import read_csv, remove_incomplete_rows
 
 
-class DecisionTree:
+class Discretization:
+
+    def __init__(self):
+        pass
+
+    def categorize_table(self, table):
+
+        for row in table:
+            self.categorize_instance(row)
+
+        return table
+
+    def categorize_instance(self, row):
+        pass
+
+    @staticmethod
+    def convert(value, cutoffs):
+
+        for i, item in enumerate(cutoffs):
+            if float(value) < item:
+                return i + 1
+            elif float(value) > cutoffs[-1]:
+                return len(cutoffs) + 1
+
+
+class DecisionTree(Discretization):
 
     def __init__(self, training_set, att_indexes, label_index):
+        Discretization.__init__(self)
+
+        self.training_set = self.categorize_table(training_set)
         self.training_set = training_set
         self.att_indexes = att_indexes
         self.label_index = label_index
@@ -40,15 +68,6 @@ class DecisionTree:
 
         return dictionary
 
-    def check_labels(self, table):
-
-        label = str(table[self.label_index])
-
-        for row in table[1:]:
-            if str(row[self.label_index]) != label:
-                return False
-        return True
-
     def calc_enew(self, instances, att_index, class_index):
         
         D =  len(instances)
@@ -76,30 +95,50 @@ class DecisionTree:
             result[att_val][1] += 1
         return result
 
-    def same_class(self, instances, class_index):
+    def same_class(self, table):
         # Returns true if all instances have same class value
 
+        label = str(table[self.label_index])
+
+        for row in table[1:]:
+            if str(row[self.label_index]) != label:
+                return False
+        return True
+
     def partition_stats(self, instances, class_index):
-        # List of stats: [[label1, occ1, total1], [label2, occ2, total2], …
-    
+        # List of stats: [[label1, occ1, total1], [label2, occ2, total2]...
+        pass
+
     def partition_instances(self, instances, att_indexes, att_domains):
-        # {att_val1: part1, att_val2:part2, …}
+        # {att_val1: part1, att_val2:part2,...}
+        pass
 
     def select_attribute(self, instances, att_indexes, class_index):
         # picks the attribute to partition on
+        pass
 
     def tdit(self, instances, att_indexes, att_domains, class_index):
         # The main algorithm for the tree
+        pass
 
-    def tdit_classifier(decision_tree, instance):
+    def classifier(self, decision_tree, instance):
         # returns label (really just navigating the tree given the instance)
-class TitanicDecisionTree (DecisionTree):
-
-    def __init__(self, training_set, att_indexes, label_index):
-        DecisionTree.__init__(self, training_set, att_indexes, label_index)
+        pass
 
 
 class AutoDecisionTree (DecisionTree):
+
+    def __init__(self, training_set, att_indexes, label_index):
+        DecisionTree.__init__(self, training_set, att_indexes, label_index)
+        Discretization.__init__(self)
+
+    def categorize_instance(self, row):
+
+        row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
+        row[4] = str(self.convert(row[4], [1999, 2499, 2999, 3499]))
+
+
+class TitanicDecisionTree (DecisionTree):
 
     def __init__(self, training_set, att_indexes, label_index):
         DecisionTree.__init__(self, training_set, att_indexes, label_index)
@@ -109,7 +148,7 @@ def main():
     table = remove_incomplete_rows(read_csv('auto-data.txt'))
     table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
 
-    d = DecisionTree(table, [1, 4, 6], 0)
+    d = AutoDecisionTree(table, [1, 4, 6], 0)
     d.create_decision_tree()
 
 main()
