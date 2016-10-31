@@ -109,6 +109,7 @@ class ContinuousStratifiedFolds(StratifiedFolds):
     def classification(self, training_set):
         return ContinuousNaiveBayes(training_set, self.indexes, self.cont_indexes, self.label_index)
 
+
 class StratifiedFoldsKnn(StratifiedFolds):
 
     def __init__(self, table, indexes, label_index):
