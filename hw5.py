@@ -1,8 +1,10 @@
-
+from random import sample
 from math import log
+from copy import deepcopy
 
 from hw1 import get_column
-from hw3 import read_csv, remove_incomplete_rows
+from hw3 import read_csv, remove_incomplete_rows, print_confusion, print_double_line
+from hw4 import StratifiedFolds, RandomSampling
 
 
 class Discretization:
@@ -35,11 +37,13 @@ class DecisionTree(Discretization):
     def __init__(self, training_set, att_indexes, label_index):
         Discretization.__init__(self)
 
-        self.training_set = self.categorize_table(training_set)
+        self.training_set = self.categorize_table(deepcopy(training_set))
         self.training_set = training_set
         self.att_indexes = att_indexes
         self.label_index = label_index
-        self.decision_tree = []
+        self.decision_tree = {}
+
+        self.create_decision_tree()
 
     def create_decision_tree(self):
 
@@ -48,13 +52,12 @@ class DecisionTree(Discretization):
         for key in self.decision_tree:
             self.decision_tree[key] = self.group_by(self.decision_tree[key], 1)
 
-        for key in self.decision_tree:
-            for row in self.decision_tree[key]:
-                print row
+        # for key in self.decision_tree:
+        #     for row in self.decision_tree[key]:
+        #         print row
 
     @staticmethod
     def group_by(table, index):
-        print len(table)
 
         dictionary = {}
 
@@ -64,13 +67,13 @@ class DecisionTree(Discretization):
                 dictionary[row[index]].append(row)
             else:
                 dictionary.update({row[index]: []})
-                print 'added key:  ' + str(row[index])
+                # print 'added key:  ' + str(row[index])
 
         return dictionary
 
     def calc_enew(self, instances, att_index, class_index):
         
-        D =  len(instances)
+        D = len(instances)
         freqs = self.att_freqs(instances, att_index, class_index)
         E_new = 0
         
@@ -121,9 +124,9 @@ class DecisionTree(Discretization):
         # The main algorithm for the tree
         pass
 
-    def classifier(self, decision_tree, instance):
+    def classify(self, instance):
         # returns label (really just navigating the tree given the instance)
-        pass
+        return 6
 
 
 class AutoDecisionTree (DecisionTree):
@@ -138,17 +141,65 @@ class AutoDecisionTree (DecisionTree):
         row[4] = str(self.convert(row[4], [1999, 2499, 2999, 3499]))
 
 
+class AutoStratifiedFolds(StratifiedFolds):
+
+    def __init__(self, table, indexes, label_index):
+        StratifiedFolds.__init__(self, table, indexes, label_index)
+
+    def classification(self, training_set):
+        return AutoDecisionTree(training_set, self.indexes, self.label_index)
+
+
+class AutoRandomSampling(RandomSampling):
+
+    def __init__(self, table, indexes, label_index, k):
+        RandomSampling.__init__(self, table, indexes, label_index, k)
+
+    def classification(self, training_set):
+        return AutoDecisionTree(training_set, self.indexes, self.label_index)
+
+
 class TitanicDecisionTree (DecisionTree):
 
     def __init__(self, training_set, att_indexes, label_index):
         DecisionTree.__init__(self, training_set, att_indexes, label_index)
 
 
+def auto_decision_tree(table, indexes, label_index):  # step 1
+
+    print_double_line('Decision Tree Classifier')
+    d = AutoDecisionTree(table, indexes, label_index)
+
+    for instance in sample(table, 5):
+        print '\tinstance: ' + str(instance)
+        print '\tclass: ' + str(d.classify(instance)) + ' actual: '\
+            + str(d.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+
+    print_double_line('Decision Tree k-Folds Predictive Accuracy')
+
+    s = AutoStratifiedFolds(table, indexes, label_index)
+
+    stratified_folds_matrix = s.stratified_k_folds(10)
+    random_sampling = AutoRandomSampling(table, [1, 4, 6], 0, 10)
+
+    stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
+    random_sampling_accuracy = random_sampling.random_sampling()
+
+    print '\tRandomSubsample(k=10, 2:1 Train / Test)'
+    print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(0)
+    print '\tStratified 10-Fold Cross Validation'
+    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
+        + str(1 - stratified_folds_accuracy)
+
+    print_double_line('Decision Tree Confusion Matrix Predictive Accuracy')
+
+    print_confusion(stratified_folds_matrix)
+
+
 def main():
     table = remove_incomplete_rows(read_csv('auto-data.txt'))
-    table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
+    # table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
 
-    d = AutoDecisionTree(table, [1, 4, 6], 0)
-    d.create_decision_tree()
+    auto_decision_tree(table, [1, 4, 6], 0)
 
 main()
