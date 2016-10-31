@@ -1,4 +1,3 @@
-
 from math import log
 
 from hw1 import get_column
@@ -49,11 +48,12 @@ class DecisionTree:
                 return False
         return True
 
-    def calc_enew(instances, att_index, clas_index):
+    def calc_enew(self, instances, att_index, class_index):
         
-        D =  len(instances)
-        freqs = att_freqs(instances, att_index, class_index)
+        D = len(instances)
+        freqs = self.att_freqs(instances, att_index, class_index)
         E_new = 0
+        probs = 0
         
         for att_val in freqs:
             D_j = freqs[att_val][1]
@@ -62,7 +62,7 @@ class DecisionTree:
         E_D_j = sum([p * log(p, 2) for p in probs])
         E_new += (D_j / D) * E_D_j
 
-    def att_freqs(instances, att_index, class_index):
+    def att_freqs(self, instances, att_index, class_index):
     
         att_vals = list(set(get_column(instances, att_index)))
         class_vals = list(set(get_column(instances, class_index)))
@@ -76,6 +76,7 @@ class DecisionTree:
             result[att_val][1] += 1
         return result
 
+
 class TitanicDecisionTree (DecisionTree):
 
     def __init__(self, training_set, att_indexes, label_index):
@@ -87,6 +88,24 @@ class AutoDecisionTree (DecisionTree):
     def __init__(self, training_set, att_indexes, label_index):
         DecisionTree.__init__(self, training_set, att_indexes, label_index)
 
+    def categorize_table(self):
+
+        for row in self.training_set:
+            self.categorize_instance(row)
+
+    def categorize_instance(self, row):
+
+        row[0] = self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
+        row[4] = str(self.convert(row[4], [1999, 2499, 2999, 3499]))
+
+    def convert(self, value, cutoffs):
+
+        for i, item in enumerate(cutoffs):
+            if float(value) < item:
+                return i + 1
+            elif float(value) > cutoffs[-1]:
+                return len(cutoffs) + 1
+
 
 def main():
     table = remove_incomplete_rows(read_csv('auto-data.txt'))
@@ -96,4 +115,4 @@ def main():
     d.create_decision_tree()
 
 main()
->>>>>>> refs/remotes/origin/Development
+
