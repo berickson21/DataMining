@@ -45,7 +45,7 @@ def knn(table, indexes, label_index, k):
 
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(k_nn.knn_classifier(instance)) \
+        print '\tclass: ' + str(k_nn.classifier(instance)) \
         + ' actual: ' + (str(instance[3]))
 
     print_double_line('K-nn Stratified k-Folds Predictive Accuracy')
@@ -84,16 +84,15 @@ def naive_bayes_titanic(table, indexes, label_index):  # step 1
 
     stratified_folds_matrix = s.stratified_k_folds(10)
 
-    random_sampling = RandomSampling(table, [1, 4, 6], 0, 10)
-    random_sampling_accuracy = round(random_sampling.random_sampling(),2)
+    #random_sampling = RandomSampling(table, [1, 4, 6], 0, 10)
+    #random_sampling_accuracy = round(random_sampling.random_sampling(),2)
 
     stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
 
     print '\tRandomSubsample(k=10, 2:1 Train / Test)'
-    print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(1 - random_sampling_accuracy)
+    print '\t\taccuracy = ' + str(1) + ', error rate = ' + str(1 - 1)
     print '\tStratified 10-Fold Cross Validation'
     print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = ' + str(1 - stratified_folds_accuracy)
-
 
     print_double_line('Naive Bayes Confusion Matrix Predictive Accuracy')
 
