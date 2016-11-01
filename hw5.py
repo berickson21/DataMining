@@ -56,6 +56,8 @@ class DecisionTree(Discretization):
         #     for row in self.decision_tree[key]:
         #         print row
 
+    # Creates a dictionary with all of the occurances
+    # of each value for a given attribute (column).
     @staticmethod
     def group_by(table, index):
 
@@ -71,25 +73,27 @@ class DecisionTree(Discretization):
 
         return dictionary
 
+    # calculates enew using entropy stuff.
     def calc_enew(self, instances, att_index, class_index):
-        
+
         D = len(instances)
         freqs = self.att_freqs(instances, att_index, class_index)
         E_new = 0
-        
+
         for att_val in freqs:
             D_j = freqs[att_val][1]
             probs = [(t / D_j) for (_, t) in freqs[att_val][0].items()]
-        
+
         E_D_j = sum([p * log(p, 2) for p in probs])
         E_new += (D_j / D) * E_D_j
 
+    # returns the frequency of each value (class) for a given attribute.
     def att_freqs(self, instances, att_index, class_index):
-    
+
         att_vals = list(set(get_column(instances, att_index)))
         class_vals = list(set(get_column(instances, class_index)))
 
-        result = {v: [{c:0 for c in class_vals}, 0] for v in att_vals}
+        result = {v: [{c: 0 for c in class_vals}, 0] for v in att_vals}
 
         for row in instances:
             label = row[class_index]
@@ -113,7 +117,7 @@ class DecisionTree(Discretization):
         pass
 
     def partition_instances(self, instances, att_indexes, att_domains):
-        # {att_val1: part1, att_val2:part2,...}
+        # {att_val1: part1, att_val2: part2,...}
         pass
 
     def select_attribute(self, instances, att_indexes, class_index):
@@ -182,7 +186,8 @@ def auto_decision_tree(table, indexes, label_index):  # step 1
     stratified_folds_matrix = s.stratified_k_folds(10)
     random_sampling = AutoRandomSampling(table, [1, 4, 6], 0, 10)
 
-    stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
+    stratified_folds_accuracy = s.get_accuracy_of_confusion(
+        stratified_folds_matrix)[0]
     random_sampling_accuracy = random_sampling.random_sampling()
 
     print '\tRandomSubsample(k=10, 2:1 Train / Test)'
