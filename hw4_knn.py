@@ -13,7 +13,7 @@ class KnnClassifier:
         self.label_index = 3
         self.k = k
 
-    def knn_classifier(self, instance):
+    def classifier(self, instance):
 
         distance = []
         for row in self.training_set:

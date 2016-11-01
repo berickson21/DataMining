@@ -48,7 +48,7 @@ class StratifiedFolds:
         return matrix.tolist()
 
     def construct_confusion_matrix(self, test_set, training_set):
-        print 'TEST 2'
+
         classifier = self.classification(training_set)
 
         init = [[0] * self.num_labels] * self.num_labels
@@ -123,7 +123,8 @@ class StratifiedFoldsKnn(StratifiedFolds):
     def get_labels(self):
         pass
 
-    def convert_label(self, value):
+    @staticmethod
+    def convert_label(value):
 
         if value == 'yes':
             return 0
@@ -131,8 +132,8 @@ class StratifiedFoldsKnn(StratifiedFolds):
             return 1
 
     def construct_confusion_matrix_knn(self, test_set, training_set):
-        print 'TEST 3'
-        classifier = self.classification_knn(training_set)
+
+        classifier = self.classification(training_set)
 
         init = [[0] * self.num_labels] * self.num_labels
         confusion = numpy.array(init)
@@ -140,9 +141,9 @@ class StratifiedFoldsKnn(StratifiedFolds):
 
         for instance in test_set:
 
-            c = int(classifier.convert(classifier.classifier(instance)[3]))
-            r = int(classifier.convert(instance[3]))
-            confusion[r-1][c-1] += 1
+            c = classifier.classify(instance)
+            r = self.convert_label(instance[3])
+            confusion[r][c] += 1
             total += 1
 
         return numpy.matrix(confusion).tolist()
@@ -168,7 +169,7 @@ class StratifiedFoldsKnn(StratifiedFolds):
 
         return matrix.tolist()
 
-    def classification_knn(self, training_set):
+    def classification(self, training_set):
         return KnnClassifier(training_set, self.indexes, self.label_index, 10)
 
 
@@ -177,5 +178,5 @@ class StratifiedFoldsTitanic(StratifiedFoldsKnn):
     def __init__(self, table, indexes, label_index):
         StratifiedFoldsKnn.__init__(self, table, indexes, label_index)
 
-    def classification_titanic(self, training_set):
+    def classification(self, training_set):
         return NaiveBayesTitanic(training_set, self.indexes, self.label_index)
