@@ -43,24 +43,19 @@ class DecisionTree(Discretization):
         self.label_index = label_index
         self.decision_tree = {}
         self.att_domains = {}
-
         self.att_domains = self.get_attribute_domains(self.training_set, self.att_indexes)
-        # print self.select_attribute(self.training_set, self.att_indexes, self.att_domains, self.label_index)
+        print self.att_domains.keys()
+        self.select_attribute(self.training_set, self.att_indexes, self.att_domains, self.label_index)
 
-    # instances is the current partition
-    # att_indexes are the indexes of attributes used for classification
-    # att_domains is the possible values for each attribute (by index)
-    # label_index is the attribute used as the class label
-    # def tdit(self, instances, att_indexes, att_domains, label_index):    
-        
-        
 
     # def create_decision_tree(self, sofar, todo, label_index):
 
-        self.decision_tree = self.group_by(self.training_set, self.att_indexes[0])
-
-        for key in self.decision_tree:
-            self.decision_tree[key] = self.group_by(self.decision_tree[key], self.att_indexes[1])
+    #     self.decision_tree = self.group_by(self.training_set, self.att_indexes[0])
+        
+    #     for key in self.decision_tree:
+    #         print key
+    #         self.decision_tree[key] = self.group_by(self.decision_tree[key], self.att_indexes[1])
+    #     print self.decision_tree
         
     #     self.decision_tree = self.group_by(self.training_set, label_index)
 
@@ -100,13 +95,13 @@ class DecisionTree(Discretization):
         return dictionary
 
     # calculates enew using entropy stuff.
-    def calc_enew(self, instances, att_index, label_index):
+    def calc_enew(self, instances, att_index, class_index):
 
         # get the length of the partition
         D = len(instances)
        
         # calculate the partition stats for att_index (see below)
-        freqs = self.attribute_frequencies(instances, att_index, label_index)
+        freqs = self.attribute_frequencies(instances, att_index, class_index)
        
         # find E_new from freqs (calc weighted avg)
         E_new = 0
@@ -121,22 +116,22 @@ class DecisionTree(Discretization):
     # Returns the class frequencies for each attribute value:
     # {att_val:[{class1: freq, class2: freq, ...}, total], ...}
     def attribute_frequencies(self, instances, att_index, label_index):
-        pass
-        # # get unique list of attribute and class values
-        # att_vals = list(set(get_column(instances, att_index)))
-        # class_vals = list(set(get_column(instances, label_index)))
+        
+        # get unique list of attribute and class values
+        att_vals = list(set(get_column(instances, att_index)))
+        class_vals = list(set(get_column(instances, label_index)))
 
-        # # initialize the result
-        # result = {v: [{c: 0 for c in class_vals}, 0] for v in att_vals}
+        # initialize the result
+        result = {v: [{c: 0 for c in class_vals}, 0] for v in att_vals}
+        print result
         
-        
-        # # build up the frequencies
-        # for row in instances:
-        #     label = row[label_index]
-        #     att_val = row[att_index]
-        #     result[att_val][0][label] += 1
-        #     result[att_val][1] += 1
-        # return result
+        # build up the frequencies
+        for row in instances:
+            label = row[label_index]
+            att_val = row[att_index]
+            result[att_val][0][label] += 1
+            result[att_val][1] += 1
+        return result
 
 
     # Returns true if all instances have same label
@@ -149,11 +144,18 @@ class DecisionTree(Discretization):
     #             return False
     #     return True
 
-    # List of stats: [[label1, occ1, total1], [label2, occ2, total2]...
+    # Creates a list of stats for the given partition (attribute)
+    # holds each label, the number of occurances of that label, and total occurances
+    # of that attribute.
+    # [[label1, occ1, total1], [label2, occ2, total2]...
+    # 
     def partition_stats(self, instances, label_index):
         pass
 
     # {att_val1: part1, att_val2: part2,...}
+    # att_indexes holds the attributes that have yet to be partitioned
+    # att_domains holds the domains for all remaining attributes
+    # function iterates down att_in
     def partition_instances(self, instances, att_indexes, att_domains):
         part_list = {}
         for value in att_domains:
@@ -164,7 +166,6 @@ class DecisionTree(Discretization):
     def select_attribute(self, instances, att_indexes, att_domains, label_index):
         e_new = dict.fromkeys(self.att_domains.keys())
         for index in att_indexes:
-            print index
             print self.calc_enew(instances, index, self.label_index)
         # print e_new
         # return min(e_new, k=e_new.get)
@@ -249,30 +250,30 @@ def titanic_decision_tree(table, indexes, label_index):  # step 1
 
     d = TitanicDecisionTree(table, indexes, label_index)
 
-    for instance in sample(table, 5):
-        print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(d.classify(instance)) + ' actual: '\
-            + str(instance[3])
+    # for instance in sample(table, 5):
+    #     print '\tinstance: ' + str(instance)
+    #     print '\tclass: ' + str(d.classify(instance)) + ' actual: '\
+    #         + str(instance[3])
 
-    print_double_line('Titanic Decision Tree k-Folds Predictive Accuracy')
+    # print_double_line('Titanic Decision Tree k-Folds Predictive Accuracy')
 
-    s = TitanicStratifiedFolds(table, indexes, label_index)
+    # s = TitanicStratifiedFolds(table, indexes, label_index)
 
-    stratified_folds_matrix = s.stratified_k_folds(10)
-    # random_sampling = TitanicRandomSampling(table, [1, 4, 6], 0, 10)
+    # stratified_folds_matrix = s.stratified_k_folds(10)
+    # # random_sampling = TitanicRandomSampling(table, [1, 4, 6], 0, 10)
 
-    stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
-    # random_sampling_accuracy = random_sampling.random_sampling()
+    # stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
+    # # random_sampling_accuracy = random_sampling.random_sampling()
 
-    print '\tRandomSubsample(k=10, 2:1 Train / Test)'
-    print '\t\taccuracy = ' + str(0.71) + ', error rate = ' + str(1-0.71)
-    print '\tStratified 10-Fold Cross Validation'
-    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
-        + str(1 - stratified_folds_accuracy)
+    # print '\tRandomSubsample(k=10, 2:1 Train / Test)'
+    # print '\t\taccuracy = ' + str(0.71) + ', error rate = ' + str(1-0.71)
+    # print '\tStratified 10-Fold Cross Validation'
+    # print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
+    #     + str(1 - stratified_folds_accuracy)
 
-    print_double_line('Titanic Decision Tree Confusion Matrix Predictive Accuracy')
+    # print_double_line('Titanic Decision Tree Confusion Matrix Predictive Accuracy')
 
-    print_confusion_titanic(stratified_folds_matrix)
+    # print_confusion_titanic(stratified_folds_matrix)
 
 
 def auto_decision_tree(table, indexes, label_index):  # step 2
@@ -307,13 +308,13 @@ def auto_decision_tree(table, indexes, label_index):  # step 2
     #     + str(1 - stratified_folds_accuracy)
 
 
-    print '\tRandomSubsample(k=10, 2:1 Train / Test)'
-    print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(1-random_sampling_accuracy)
-    print '\tStratified 10-Fold Cross Validation'
-    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
-        + str(1 - stratified_folds_accuracy)
+    # print '\tRandomSubsample(k=10, 2:1 Train / Test)'
+    # print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(1-random_sampling_accuracy)
+    # print '\tStratified 10-Fold Cross Validation'
+    # print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
+    #     + str(1 - stratified_folds_accuracy)
 
-    print_double_line('Auto Decision Tree Confusion Matrix Predictive Accuracy')
+    # print_double_line('Auto Decision Tree Confusion Matrix Predictive Accuracy')
 
 
 
@@ -323,6 +324,6 @@ def main():
     table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
 
     auto_decision_tree(table, [1, 4, 6], 0)
-    titanic_decision_tree(table_titanic, [0, 1, 2], 3)
+    # titanic_decision_tree(table_titanic, [0, 1, 2], 3)
 
 main()
