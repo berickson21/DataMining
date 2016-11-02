@@ -13,18 +13,18 @@ class StratifiedFolds:
 
     def __init__(self, table, indexes, label_index):
         self.table = deepcopy(table)
-
         self.indexes = indexes
         self.label_index = label_index
-
         self.labels = []
+        self.get_labels()
+        self.num_labels = len(self.labels)
+
+    def get_labels(self):
 
         for row in self.table:
             label = self.convert(row[self.label_index], [13, 14, 16, 19, 23, 26, 30, 36, 44])
             if label not in self.labels:
                 self.labels.append(label)
-
-        self.num_labels = len(self.labels)
 
     def stratified_k_folds(self, k):
 
@@ -100,6 +100,7 @@ class StratifiedFolds:
             elif float(value) > cutoffs[-1]:
                 return len(cutoffs) + 1
 
+
 class ContinuousStratifiedFolds(StratifiedFolds):
 
     def __init__(self, table, cat_indexes, cont_indexes, label_index):
@@ -109,19 +110,21 @@ class ContinuousStratifiedFolds(StratifiedFolds):
     def classification(self, training_set):
         return ContinuousNaiveBayes(training_set, self.indexes, self.cont_indexes, self.label_index)
 
+
 class StratifiedFoldsKnn(StratifiedFolds):
 
     def __init__(self, table, indexes, label_index):
-        self.table = deepcopy(table)
-
-        self.indexes = indexes
-        self.label_index = label_index
+        StratifiedFolds.__init__(self, table, indexes, label_index)
 
         self.labels = [0, 1]
 
         self.num_labels = 2
 
-    def convert_label(self, value):
+    def get_labels(self):
+        pass
+
+    @staticmethod
+    def convert_label(value):
 
         if value == 'yes':
             return 0
@@ -130,7 +133,7 @@ class StratifiedFoldsKnn(StratifiedFolds):
 
     def construct_confusion_matrix_knn(self, test_set, training_set):
 
-        classifier = self.classification_knn(training_set)
+        classifier = self.classification(training_set)
 
         init = [[0] * self.num_labels] * self.num_labels
         confusion = numpy.array(init)
@@ -138,9 +141,9 @@ class StratifiedFoldsKnn(StratifiedFolds):
 
         for instance in test_set:
 
-            c = int(classifier.convert(classifier.knn_classifier(instance)[3]))
-            r = int(classifier.convert(instance[3]))
-            confusion[r-1][c-1] += 1
+            c = classifier.classify(instance)
+            r = self.convert_label(instance[3])
+            confusion[r][c] += 1
             total += 1
 
         return numpy.matrix(confusion).tolist()
@@ -166,40 +169,14 @@ class StratifiedFoldsKnn(StratifiedFolds):
 
         return matrix.tolist()
 
-    def classification_knn(self, training_set):
+    def classification(self, training_set):
         return KnnClassifier(training_set, self.indexes, self.label_index, 10)
 
 
 class StratifiedFoldsTitanic(StratifiedFoldsKnn):
 
     def __init__(self, table, indexes, label_index):
-        self.table = deepcopy(table)
+        StratifiedFoldsKnn.__init__(self, table, indexes, label_index)
 
-        self.indexes = indexes
-        self.label_index = label_index
-
-        self.labels = [0, 1]
-
-        self.num_labels = 2
-
-    def construct_confusion_matrix_knn(self, test_set, training_set):
-
-        classifier = self.classification_titanic(training_set)
-
-        init = [[0] * self.num_labels] * self.num_labels
-        confusion = numpy.array(init)
-        total = 0
-
-        for instance in test_set:
-            print classifier.classify(instance)
-            c = int(classifier.convert(classifier.classify(instance)[3]))
-            print 'C is: ' + str(c)
-            r = int(classifier.convert(instance[3]))
-            confusion[r-1][c-1] += 1
-            total += 1
-
-        return numpy.matrix(confusion).tolist()    
-
-    def classification_titanic(self, training_set):
+    def classification(self, training_set):
         return NaiveBayesTitanic(training_set, self.indexes, self.label_index)
-        
