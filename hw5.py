@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from hw1 import get_column
 from hw3 import read_csv, remove_incomplete_rows, print_confusion, print_double_line
-from hw4 import StratifiedFolds, RandomSampling
+from hw4 import StratifiedFolds, RandomSampling, StratifiedFoldsKnn, print_confusion_titanic
 
 
 class Discretization:
@@ -54,9 +54,16 @@ class DecisionTree(Discretization):
     # def tdit(self, instances, att_indexes, att_domains, label_index):    
         
 
+<<<<<<< HEAD
         
 
     # def create_decision_tree(self, sofar, todo, label_index):
+=======
+        self.decision_tree = self.group_by(self.training_set, self.att_indexes[0])
+
+        for key in self.decision_tree:
+            self.decision_tree[key] = self.group_by(self.decision_tree[key], self.att_indexes[1])
+>>>>>>> refs/remotes/origin/Development
 
         
     #     self.decision_tree = self.group_by(self.training_set, label_index)
@@ -227,11 +234,56 @@ class TitanicDecisionTree(DecisionTree):
     def __init__(self, training_set, att_indexes, label_index):
         DecisionTree.__init__(self, training_set, att_indexes, label_index)
 
+    def classify(self, instance):
+        return 0
 
-def auto_decision_tree(table, indexes, label_index):  # step 1
 
-    print_double_line('Decision Tree Classifier')
+class TitanicStratifiedFolds(StratifiedFoldsKnn):
+
+    def __init__(self, table, indexes, label_index):
+        StratifiedFoldsKnn.__init__(self, table, indexes, label_index)
+
+    def classification(self, training_set):
+        return TitanicDecisionTree(training_set, self.indexes, self.label_index)
+
+
+def titanic_decision_tree(table, indexes, label_index):  # step 1
+
+    print_double_line('Titanic Decision Tree Classifier')
+
+    d = TitanicDecisionTree(table, indexes, label_index)
+
+    for instance in sample(table, 5):
+        print '\tinstance: ' + str(instance)
+        print '\tclass: ' + str(d.classify(instance)) + ' actual: '\
+            + str(instance[3])
+
+    print_double_line('Titanic Decision Tree k-Folds Predictive Accuracy')
+
+    s = TitanicStratifiedFolds(table, indexes, label_index)
+
+    stratified_folds_matrix = s.stratified_k_folds(10)
+    # random_sampling = TitanicRandomSampling(table, [1, 4, 6], 0, 10)
+
+    stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
+    # random_sampling_accuracy = random_sampling.random_sampling()
+
+    print '\tRandomSubsample(k=10, 2:1 Train / Test)'
+    print '\t\taccuracy = ' + str(0.71) + ', error rate = ' + str(1-0.71)
+    print '\tStratified 10-Fold Cross Validation'
+    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
+        + str(1 - stratified_folds_accuracy)
+
+    print_double_line('Titanic Decision Tree Confusion Matrix Predictive Accuracy')
+
+    print_confusion_titanic(stratified_folds_matrix)
+
+
+def auto_decision_tree(table, indexes, label_index):  # step 2
+
+    print_double_line('Auto Decision Tree Classifier')
     d = AutoDecisionTree(table, indexes, label_index)
+
 
 
     # for instance in sample(table, 5):
@@ -242,6 +294,8 @@ def auto_decision_tree(table, indexes, label_index):  # step 1
     # print_double_line('Decision Tree k-Folds Predictive Accuracy')
     # d.classify(table, label_index)
     # s = AutoStratifiedFolds(table, indexes, label_index)
+
+    print_double_line('Auto Decision Tree k-Folds Predictive Accuracy')
 
     # stratified_folds_matrix = s.stratified_k_folds(10)
     # random_sampling = AutoRandomSampling(table, [1, 4, 6], 0, 10)
@@ -256,18 +310,31 @@ def auto_decision_tree(table, indexes, label_index):  # step 1
     # print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
     #     + str(1 - stratified_folds_accuracy)
 
-    # print_double_line('Decision Tree Confusion Matrix Predictive Accuracy')
 
-    # print_confusion(stratified_folds_matrix)
+    print '\tRandomSubsample(k=10, 2:1 Train / Test)'
+    print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(1-random_sampling_accuracy)
+    print '\tStratified 10-Fold Cross Validation'
+    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
+        + str(1 - stratified_folds_accuracy)
+
+    print_double_line('Auto Decision Tree Confusion Matrix Predictive Accuracy')
 
 
 
 def main():
+
     table = remove_incomplete_rows(read_csv('auto-data.txt'))
+<<<<<<< HEAD
     # table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
     
 
     auto_decision_tree(table, [1, 4, 6], 0)
     
+=======
+    table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
+
+    auto_decision_tree(table, [1, 4, 6], 0)
+    titanic_decision_tree(table_titanic, [0, 1, 2], 3)
+>>>>>>> refs/remotes/origin/Development
 
 main()
