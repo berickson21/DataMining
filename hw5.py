@@ -53,18 +53,14 @@ class DecisionTree(Discretization):
     # label_index is the attribute used as the class label
     # def tdit(self, instances, att_indexes, att_domains, label_index):    
         
-
-<<<<<<< HEAD
         
 
     # def create_decision_tree(self, sofar, todo, label_index):
-=======
+
         self.decision_tree = self.group_by(self.training_set, self.att_indexes[0])
 
         for key in self.decision_tree:
             self.decision_tree[key] = self.group_by(self.decision_tree[key], self.att_indexes[1])
->>>>>>> refs/remotes/origin/Development
-
         
     #     self.decision_tree = self.group_by(self.training_set, label_index)
 
@@ -324,17 +320,9 @@ def auto_decision_tree(table, indexes, label_index):  # step 2
 def main():
 
     table = remove_incomplete_rows(read_csv('auto-data.txt'))
-<<<<<<< HEAD
-    # table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
-    
-
-    auto_decision_tree(table, [1, 4, 6], 0)
-    
-=======
     table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
 
     auto_decision_tree(table, [1, 4, 6], 0)
     titanic_decision_tree(table_titanic, [0, 1, 2], 3)
->>>>>>> refs/remotes/origin/Development
 
 main()
