@@ -42,28 +42,54 @@ class DecisionTree(Discretization):
         self.att_indexes = att_indexes
         self.label_index = label_index
         self.decision_tree = {}
+        self.att_domains = {}
 
-        self.create_decision_tree()
+        self.att_domains = self.get_attribute_domains(self.training_set, self.att_indexes)
+        # print self.select_attribute(self.training_set, self.att_indexes, self.att_domains, self.label_index)
 
-    def create_decision_tree(self):
+    # instances is the current partition
+    # att_indexes are the indexes of attributes used for classification
+    # att_domains is the possible values for each attribute (by index)
+    # label_index is the attribute used as the class label
+    # def tdit(self, instances, att_indexes, att_domains, label_index):    
+        
+        
+
+    # def create_decision_tree(self, sofar, todo, label_index):
 
         self.decision_tree = self.group_by(self.training_set, self.att_indexes[0])
 
         for key in self.decision_tree:
             self.decision_tree[key] = self.group_by(self.decision_tree[key], self.att_indexes[1])
+        
+    #     self.decision_tree = self.group_by(self.training_set, label_index)
 
-        # for key in self.decision_tree:
-        #     for row in self.decision_tree[key]:
-        #         print row
+    #     for key in self.decision_tree:
+    #         self.decision_tree[key] = self.group_by(self.decision_tree[key], 1)
+
+    #   for key in self.decision_tree:
+    #       for row in self.decision_tree[key]:
+    #           print row
 
     # Creates a dictionary with all of the occurances
     # of each value for a given attribute (column).
+    
+    def get_attribute_domains(self, instances, att_indexes):
+        for index in att_indexes:
+            for row in instances:
+                if self.att_domains.get(index) is None:
+                    self.att_domains[index] = [row[index]]
+                elif self.att_domains.get(index).count(row[index]) == 0:
+                    self.att_domains.get(index).append(row[index])
+
+        return self.att_domains
+
     @staticmethod
-    def group_by(table, index):
+    def group_by(instances, index):
 
         dictionary = {}
 
-        for row in table:
+        for row in instances:
 
             if row[index] in dictionary:
                 dictionary[row[index]].append(row)
@@ -74,63 +100,99 @@ class DecisionTree(Discretization):
         return dictionary
 
     # calculates enew using entropy stuff.
-    def calc_enew(self, instances, att_index, class_index):
+    def calc_enew(self, instances, att_index, label_index):
 
+        # get the length of the partition
         D = len(instances)
-        freqs = self.att_freqs(instances, att_index, class_index)
+       
+        # calculate the partition stats for att_index (see below)
+        freqs = self.attribute_frequencies(instances, att_index, label_index)
+       
+        # find E_new from freqs (calc weighted avg)
         E_new = 0
-
         for att_val in freqs:
-            D_j = freqs[att_val][1]
-            probs = [(t / D_j) for (_, t) in freqs[att_val][0].items()]
+            D_j = float(freqs[att_val][1])
+            probs = [(c/D_j) for (_, c) in freqs[att_val][0].items()]
+            # print probs
+            E_D_j = -sum([p*log(p,2) for p in probs])
+            E_new += (D_j/D)*E_D_j
+        return E_new
 
-        E_D_j = sum([p * log(p, 2) for p in probs])
-        E_new += (D_j / D) * E_D_j
+    # Returns the class frequencies for each attribute value:
+    # {att_val:[{class1: freq, class2: freq, ...}, total], ...}
+    def attribute_frequencies(self, instances, att_index, label_index):
+        pass
+        # # get unique list of attribute and class values
+        # att_vals = list(set(get_column(instances, att_index)))
+        # class_vals = list(set(get_column(instances, label_index)))
 
-    # returns the frequency of each value (class) for a given attribute.
-    def att_freqs(self, instances, att_index, class_index):
+        # # initialize the result
+        # result = {v: [{c: 0 for c in class_vals}, 0] for v in att_vals}
+        
+        
+        # # build up the frequencies
+        # for row in instances:
+        #     label = row[label_index]
+        #     att_val = row[att_index]
+        #     result[att_val][0][label] += 1
+        #     result[att_val][1] += 1
+        # return result
 
-        att_vals = list(set(get_column(instances, att_index)))
-        class_vals = list(set(get_column(instances, class_index)))
 
-        result = {v: [{c: 0 for c in class_vals}, 0] for v in att_vals}
+    # Returns true if all instances have same label
+    # def same_class(instances, label_index):
 
-        for row in instances:
-            label = row[class_index]
-            att_val = row[att_index]
-            result[att_val][0][label] += 1
-            result[att_val][1] += 1
-        return result
+    #     label = str(instances[self.label_index])
 
-    def same_class(self, table):
-        # Returns true if all instances have same class value
+    #     for row in instances[1:]:
+    #         if str(row[self.label_index]) != label:
+    #             return False
+    #     return True
 
-        label = str(table[self.label_index])
-
-        for row in table[1:]:
-            if str(row[self.label_index]) != label:
-                return False
-        return True
-
-    def partition_stats(self, instances, class_index):
-        # List of stats: [[label1, occ1, total1], [label2, occ2, total2]...
+    # List of stats: [[label1, occ1, total1], [label2, occ2, total2]...
+    def partition_stats(self, instances, label_index):
         pass
 
+    # {att_val1: part1, att_val2: part2,...}
     def partition_instances(self, instances, att_indexes, att_domains):
-        # {att_val1: part1, att_val2: part2,...}
-        pass
+        part_list = {}
+        for value in att_domains:
+            part_list.update({value: DecisionTree(instances, att_indexes, self.label_index)})
+        return part_list
 
-    def select_attribute(self, instances, att_indexes, class_index):
-        # picks the attribute to partition on
-        pass
+    # picks the attribute to partition on (smallest E_new)
+    def select_attribute(self, instances, att_indexes, att_domains, label_index):
+        e_new = dict.fromkeys(self.att_domains.keys())
+        for index in att_indexes:
+            print index
+            print self.calc_enew(instances, index, self.label_index)
+        # print e_new
+        # return min(e_new, k=e_new.get)
+        # result = []
+        # min_value = None
+        # for key, value in e_new.iteritems():
+        #     if min_value is None or value < min_value:
+        #         min_value = value
+        #         result = []
+        #     if value == min_value:
+        #         result.append(key)
 
-    def tdit(self, instances, att_indexes, att_domains, class_index):
-        # The main algorithm for the tree
-        pass
+        # return result
+        # for attribute in att_indexes:
 
-    def classify(self, instance):
-        # returns label (really just navigating the tree given the instance)
-        return 6
+
+   
+    # takes a decision tree (produced by tdidt) and an instance to classify
+    # uses the tree to predict the class label for the instance
+    # returns the predicted label for the instance
+    # def classify(self, instances, instance):
+
+    #     return instances[self.label_index]
+        # if self.same_class(instances, self.label_index):
+        #     return instances[self.label_index]
+        # else:
+
+
 
 
 class AutoDecisionTree (DecisionTree):
@@ -163,7 +225,7 @@ class AutoRandomSampling(RandomSampling):
         return AutoDecisionTree(training_set, self.indexes, self.label_index)
 
 
-class TitanicDecisionTree (DecisionTree):
+class TitanicDecisionTree(DecisionTree):
 
     def __init__(self, training_set, att_indexes, label_index):
         DecisionTree.__init__(self, training_set, att_indexes, label_index)
@@ -218,21 +280,32 @@ def auto_decision_tree(table, indexes, label_index):  # step 2
     print_double_line('Auto Decision Tree Classifier')
     d = AutoDecisionTree(table, indexes, label_index)
 
-    for instance in sample(table, 5):
-        print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(d.classify(instance)) + ' actual: '\
-            + str(d.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+
+
+    # for instance in sample(table, 5):
+    #     print '\tinstance: ' + str(instance)
+    #     print '\tclass: ' + str(d.classify(instance)) + ' actual: '\
+    #         + str(d.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+
+    # print_double_line('Decision Tree k-Folds Predictive Accuracy')
+    # d.classify(table, label_index)
+    # s = AutoStratifiedFolds(table, indexes, label_index)
 
     print_double_line('Auto Decision Tree k-Folds Predictive Accuracy')
 
-    s = AutoStratifiedFolds(table, indexes, label_index)
+    # stratified_folds_matrix = s.stratified_k_folds(10)
+    # random_sampling = AutoRandomSampling(table, [1, 4, 6], 0, 10)
 
-    stratified_folds_matrix = s.stratified_k_folds(10)
-    random_sampling = AutoRandomSampling(table, [1, 4, 6], 0, 10)
+    # stratified_folds_accuracy = s.get_accuracy_of_confusion(
+    #     stratified_folds_matrix)[0]
+    # random_sampling_accuracy = random_sampling.random_sampling()
 
-    stratified_folds_accuracy = s.get_accuracy_of_confusion(
-        stratified_folds_matrix)[0]
-    random_sampling_accuracy = random_sampling.random_sampling()
+    # print '\tRandomSubsample(k=10, 2:1 Train / Test)'
+    # print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(0)
+    # print '\tStratified 10-Fold Cross Validation'
+    # print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
+    #     + str(1 - stratified_folds_accuracy)
+
 
     print '\tRandomSubsample(k=10, 2:1 Train / Test)'
     print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(1-random_sampling_accuracy)
@@ -242,7 +315,6 @@ def auto_decision_tree(table, indexes, label_index):  # step 2
 
     print_double_line('Auto Decision Tree Confusion Matrix Predictive Accuracy')
 
-    print_confusion(stratified_folds_matrix)
 
 
 def main():
