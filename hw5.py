@@ -60,35 +60,24 @@ class DecisionTree(Discretization):
                 return part_list.append([att_index, {get_column(instances, att_index).pop()}])
         # Condition 2: no more attributes to partition
         if len(att_indexes) == 1:
-            # print 'out of attributes'
             att_freqs = self.attribute_frequencies(
                 instances, att_indexes[0], class_index)
-            # print att_freqs
-            temp = []
-            # temp.append(att_freqs)
             t_lst = att_freqs.items()
-            print 'tuple list: ' + str(t_lst)
             lst = [list(elem) for elem in t_lst]
-            print 'list list: ' + str(lst)
             maxes = [att_indexes[0], {}]
             for att_val, clss in lst:
-                print 'att val =' + str(att_val)
-                print 'clss =' + str(clss)
                 maxes[1].update({att_val: (max(clss[0], key=clss[0].get))})
+            # print 'maxes: ' + str(maxes)
             return part_list.append(maxes)
         else:
-            # del new_att_domains[selected_att]
-            # del new_att_indexes[selected_att]
-            # print att_domains
-            selected_att = self.select_attribute(
-                instances, att_domains, self.label_index)
+            print 'Attribute domain: ' + str(att_domains)
+            selected_att = self.select_attribute(instances, att_domains, self.label_index)
             print 'Attribute selected: ' + str(selected_att)
-            new_tree = []
-            # print att_domains[selected_att]
-            return part_list.append([selected_att, {self.partition_instances(instances, selected_att, att_domains)}])
+            new_tree = [selected_att, {self.partition_instances(instances, selected_att, att_domains)}]
+            print 'NEW TREE = ' + str(new_tree)
+            return part_list.append(new_tree)
 
-            # new_tree = DecisionTree(new_instances.remove(selected_att), new_att_indexes, self.label_index)
-            # part_list.append([selected_att, {new_tree.decision_tree}])
+
 
     # {att_val1: part1, att_val2: part2,...}
     # att_indexes holds the attributes that have yet to be partitioned
@@ -98,11 +87,10 @@ class DecisionTree(Discretization):
 
         new_att_domains = deepcopy(att_domains)
         del new_att_domains[att_index]
-        tree_list = [att_index, {v: [self.tdidt(instances, new_att_domains.keys(
-        ), new_att_domains, self.label_index)] for v in att_domains[att_index]}]
-
+        tree_list = [att_index, {v: [self.tdidt(instances, new_att_domains.keys(), new_att_domains, self.label_index)] for v in att_domains[att_index]}]
+        print 'TREE LIST = ' + str(tree_list)
         # tree_list = [att_index, {v: [TitanicDecisionTree(instances, new_att_domains.keys(), self.label_index).tdidt] for v in att_domains[att_index]}]
-        print tree_list
+        # print 'Tree list is: ' + str(tree_list)
         # selected_att2 = self.select_attribute(instances.remove(selected_att1), new_att_domains, self.label_index)
 
     def get_attribute_domains(self, instances, att_indexes):
