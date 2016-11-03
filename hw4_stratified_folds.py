@@ -57,7 +57,7 @@ class StratifiedFolds:
 
         for instance in test_set:
 
-            c = classifier.classify(instance)
+            c = int(classifier.classify(instance))
             r = classifier.convert(instance[0], [13, 14, 16, 19, 23, 26, 30, 36, 44])
 
             confusion[r-1][c-1] += 1
