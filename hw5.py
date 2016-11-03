@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 from random import sample
->>>>>>> origin/Step_1
 from math import log
 from copy import deepcopy
 
@@ -17,14 +14,8 @@ class Discretization:
 
     def categorize_table(self, table):
 
-<<<<<<< HEAD
-from hw1 import get_column
-from hw3 import read_csv, remove_incomplete_rows
-from hw4_stratified_folds import StratifiedFolds, StratifiedFoldsTitanic
-=======
         for row in table:
             self.categorize_instance(row)
->>>>>>> origin/Step_1
 
         return table
 
