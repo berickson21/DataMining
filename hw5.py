@@ -105,8 +105,7 @@ class DecisionTree(DisplayTree, Discretization):
         self.training_set = training_set
         self.att_indexes = att_indexes
         self.label_index = label_index
-        self.att_domains = {}
-        self.att_domains = self.get_attribute_domains(self.training_set, self.att_indexes)
+        self.att_domains = {att: list(set(get_column(self.training_set, att))) for att in att_indexes}
 
         self.decision_tree = self.tdidt(self.training_set, self.att_indexes)
 
@@ -164,16 +163,6 @@ class DecisionTree(DisplayTree, Discretization):
             if str(item) == str(label):
                 count += 1
         return count
-
-    def get_attribute_domains(self, instances, att_indexes):
-        for index in att_indexes:
-            for row in instances:
-                if self.att_domains.get(index) is None:
-                    self.att_domains[index] = [row[index]]
-                elif self.att_domains.get(index).count(row[index]) == 0:
-                    self.att_domains.get(index).append(row[index])
-
-        return self.att_domains
 
     def group_by(self, instances, index):
 
@@ -271,7 +260,6 @@ class AutoDecisionTree (Discretization, DecisionTree):
     def __init__(self, training_set, att_indexes, label_index):
         DecisionTree.__init__(self, self.categorize_table(deepcopy(training_set)), att_indexes, label_index)
         DisplayTree.__init__(self, self.decision_tree, COLUMN_NAMES)
-        self.save_graphviz_tree('auto-data')
 
 
 class AutoStratifiedFolds(StratifiedFolds):
@@ -348,7 +336,7 @@ def titanic_decision_tree(table, indexes, label_index):  # step 1
 
     d.print_if_statements()
 
-    d.save_graphviz_tree('titanic_decision_tree')
+    d.save_graphviz_tree('trees/titanic_decision_tree')
 
 
 def convert(value):
@@ -391,7 +379,7 @@ def auto_decision_tree(table, indexes, label_index):  # step 2
 
     d.print_if_statements()
 
-    d.save_graphviz_tree('auto_data_decision_tree')
+    d.save_graphviz_tree('trees/auto_data_decision_tree')
 
 
 def main():
