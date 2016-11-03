@@ -1,6 +1,7 @@
 from random import sample
 from math import log
 from copy import deepcopy
+from graphviz import Graph
 
 from hw1 import get_column, get_column_as_floats
 from hw3 import read_csv, remove_incomplete_rows, print_confusion, print_double_line
@@ -32,7 +33,69 @@ class Discretization:
                 return len(cutoffs) + 1
 
 
-class DecisionTree(Discretization):
+class DisplayTree:
+
+    def __init__(self, decision_tree, column_names):
+        self.decision_tree = decision_tree
+        self.attribute_names = column_names
+
+        self.dot = None
+
+    # recursive helper function
+    def save_graphviz_tree(self, file_name):
+        self.dot = Graph()
+        # self.dot.graph_attr['rankdir'] = 'LR'
+        self.create_dot_graph(self.decision_tree)
+        self.dot.render(file_name)
+
+    def create_dot_graph(self, tree, head_name='', number=0):
+
+        if number == 0 and isinstance(tree, list):
+            name = 'h' + str(number)
+            self.dot.node(name, 'Attribute: ' + str(self.attribute_names[tree[0]]), shape='box')
+            number += 1
+            self.create_dot_graph(tree[1], name, number)
+
+        elif isinstance(tree, list):
+            name = head_name + str(self.attribute_names[tree[0]]) + str(number)
+            self.dot.node(name, 'Attribute: ' + str(self.attribute_names[tree[0]]), shape='box')
+            self.dot.edge(head_name, name)
+            number += 1
+            self.create_dot_graph(tree[1], name, number)
+
+        elif isinstance(tree, dict):
+
+            for key in tree:
+                name = head_name + str(key) + str(number)
+                self.dot.node(name, 'Value: ' + str(key))
+                self.dot.edge(head_name, name)
+                number += 1
+                self.create_dot_graph(tree[key], name, number)
+        else:
+            name = head_name + str(tree) + str(number)
+            self.dot.node(name, tree)
+            self.dot.edge(head_name, name)
+            number += 1
+
+    def print_if_statements(self):
+        self.print_ifs(self.decision_tree)
+
+    # recursive helper function
+    def print_ifs(self, tree, statement='if '):
+
+        if isinstance(tree, list):
+            state = statement + str(self.attribute_names[tree[0]]) + ' == '
+            self.print_ifs(tree[1], state)
+
+        elif isinstance(tree, dict):
+            for key in tree:
+                self.print_ifs(tree[key], statement + str(key) + ' and ')
+
+        else:
+            print statement[:-5] + ' then label is ' + tree
+
+
+class DecisionTree(Discretization, DisplayTree):
 
     def __init__(self, training_set, att_indexes, label_index):
         Discretization.__init__(self)
@@ -42,56 +105,51 @@ class DecisionTree(Discretization):
         self.att_indexes = att_indexes
         self.label_index = label_index
         self.att_domains = {}
-        self.att_domains = self.get_attribute_domains(
-            self.training_set, self.att_indexes)
-        self.decision_tree = []
-        self.decision_tree = self.tdidt(
-            self.training_set, self.att_indexes, self.att_domains, self.label_index)
+        self.att_domains = self.get_attribute_domains(self.training_set, self.att_indexes)
+
+        self.decision_tree = self.tdidt(self.training_set, self.att_indexes)
+        DisplayTree.__init__(self, self.decision_tree, ['Class', 'Age', 'Sex', 'Survived'])
+        self.print_if_statements()
+        print self.decision_tree
 
     # [att_index_a, {value_a1: [att_index_b, {value_b1: yes, value_b2: no}], value_a2: no}]
-    def tdidt(self, instances, att_indexes, att_domains, class_index):
-        part_list = []
-        new_att_indexes = deepcopy(att_indexes)
-        new_instances = deepcopy(instances)
+    def tdidt(self, instances, att_indexes):
 
-        # Condition 1: all instances have same class
-        for att_index in att_domains:
-            if self.same_class(instances, att_index):
-                return part_list.append([att_index, {get_column(instances, att_index).pop()}])
-        # Condition 2: no more attributes to partition
-        if len(att_indexes) == 1:
-            att_freqs = self.attribute_frequencies(
-                instances, att_indexes[0], class_index)
-            t_lst = att_freqs.items()
-            lst = [list(elem) for elem in t_lst]
-            maxes = [att_indexes[0], {}]
-            for att_val, clss in lst:
-                maxes[1].update({att_val: (max(clss[0], key=clss[0].get))})
-            # print 'maxes: ' + str(maxes)
-            return part_list.append(maxes)
+        if self.same_labels(instances):
+
+            return instances[0][self.label_index]
+
+        elif len(att_indexes) == 1:
+
+            probabilities = self.get_probabilities(instances)
+            probabilities.sort(key=lambda x: x[1])
+            return probabilities[0][0]
+
         else:
-            print 'Attribute domain: ' + str(att_domains)
-            selected_att = self.select_attribute(instances, att_domains, self.label_index)
-            print 'Attribute selected: ' + str(selected_att)
-            new_tree = [selected_att, {self.partition_instances(instances, selected_att, att_domains)}]
-            print 'NEW TREE = ' + str(new_tree)
-            return part_list.append(new_tree)
 
+            indexes = att_indexes[:]
+            part_index = self.select_attribute(instances, indexes)
+            partitions = self.group_by(instances, part_index)
+            indexes.remove(part_index)
 
+            return [part_index, {key: self.tdidt(partitions[key], indexes) for key in partitions}]
 
-    # {att_val1: part1, att_val2: part2,...}
-    # att_indexes holds the attributes that have yet to be partitioned
-    # att_domains holds the domains for all remaining attributes
-    # # [att_index_a, {value_a1: [att_index_b, {value_b1: yes, value_b2: no}], value_a2: no}]
-    def partition_instances(self, instances, att_index, att_domains):
+    def get_probabilities(self, instances):
+        column = get_column(instances, self.label_index)
+        labels = list(set(column))
 
-        new_att_domains = deepcopy(att_domains)
-        del new_att_domains[att_index]
-        tree_list = [att_index, {v: [self.tdidt(instances, new_att_domains.keys(), new_att_domains, self.label_index)] for v in att_domains[att_index]}]
-        print 'TREE LIST = ' + str(tree_list)
-        # tree_list = [att_index, {v: [TitanicDecisionTree(instances, new_att_domains.keys(), self.label_index).tdidt] for v in att_domains[att_index]}]
-        # print 'Tree list is: ' + str(tree_list)
-        # selected_att2 = self.select_attribute(instances.remove(selected_att1), new_att_domains, self.label_index)
+        probabilities = [[label, self.count_if(column, label)] for label in labels]
+
+        return probabilities
+
+    @staticmethod
+    def count_if(column, label):
+
+        count = 0
+        for item in column:
+            if str(item) == str(label):
+                count += 1
+        return count
 
     def get_attribute_domains(self, instances, att_indexes):
         for index in att_indexes:
@@ -159,20 +217,14 @@ class DecisionTree(Discretization):
         return result
 
     # Returns true if all instances have same label
-    def same_class(self, instances, class_index):
-
-        label = str(instances[class_index])
-
-        for row in instances[1:]:
-            if str(row[class_index]) != label:
-                return False
-        return True
+    def same_labels(self, instances):
+        return len(list(set(get_column(instances, self.label_index)))) == 1
 
     # picks the attribute to partition on (smallest E_new)
-    def select_attribute(self, instances, att_domains, label_index):
-        e_news = dict.fromkeys(att_domains.keys())
-        for att in att_domains.keys():
-            e_news[att] = self.calc_enew(instances, att, label_index)
+    def select_attribute(self, instances, att_domains):
+
+        e_news = {key: self.calc_enew(instances, key, self.label_index) for key in att_domains}
+
         return min(e_news, key=e_news.get)
 
     # takes a decision tree (produced by tdidt) and an instance to classify
@@ -189,7 +241,7 @@ class AutoDecisionTree (DecisionTree):
 
     def __init__(self, training_set, att_indexes, label_index):
         DecisionTree.__init__(self, training_set, att_indexes, label_index)
-        Discretization.__init__(self)
+
 
     def categorize_instance(self, row):
 
@@ -205,6 +257,8 @@ class AutoStratifiedFolds(StratifiedFolds):
     def classification(self, training_set):
         return AutoDecisionTree(training_set, self.indexes, self.label_index)
 
+    def categorize_instance(self, row):
+        pass
 
 class AutoRandomSampling(RandomSampling):
 
@@ -309,6 +363,6 @@ def main():
     table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
 
     # auto_decision_tree(table, [1, 4, 6], 0)
-    print titanic_decision_tree(table_titanic, [0, 1, 2], 3)
+    titanic_decision_tree(table_titanic, [0, 1, 2], 3)
 
 main()
