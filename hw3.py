@@ -309,7 +309,7 @@ def print_confusion(matrix):
         row.append(sum(row[1:]))
         row.append(round(accuracies[i], 2))
 
-    headers = ['MPG']+[str(i+1) for i in range(10)]+['Total', 'Recognition(%)']
+    headers = ['MPG']+[str(i+1) for i in range(9)]+['Total', 'Recognition(%)']
 
     print tabulate(matrix, headers=headers, tablefmt="rst")
 
