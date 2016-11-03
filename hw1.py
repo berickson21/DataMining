@@ -269,7 +269,3 @@ def main():
     print('combined table (missing values replaced by yearly average):')
     print_line()
     replace_data(table, [0, 2, 3, 4, 5, 9], 6)
-
-
-if __name__ == '__main__':
-    main()

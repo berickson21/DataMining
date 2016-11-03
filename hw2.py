@@ -464,6 +464,3 @@ def main():
     divided_frequency_chart(table, 6, 7)
 
     pyplot.close("all")
-
-if __name__ == '__main__':
-    main()

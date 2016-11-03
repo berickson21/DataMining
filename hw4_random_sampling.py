@@ -102,6 +102,4 @@ def main():
     r = RandomSampling(table, [1, 4, 6], 0, 10)
     cr = ContinuousRandomSampling(table, [1, 6], [4], 0, 10)
     print r.random_sampling(), cr.random_sampling()
-
-
-
+    
