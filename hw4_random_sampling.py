@@ -93,15 +93,3 @@ class ContinuousRandomSampling(RandomSampling):
 
     def classification(self, training_set):
         return ContinuousNaiveBayes(training_set, self.indexes, self.cont_index, self.label_index)
-
-
-def main():
-
-    table = remove_incomplete_rows(read_csv('auto-data.txt'))
-
-    r = RandomSampling(table, [1, 4, 6], 0, 10)
-    cr = ContinuousRandomSampling(table, [1, 6], [4], 0, 10)
-    print r.random_sampling(), cr.random_sampling()
-
-
-

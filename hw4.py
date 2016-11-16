@@ -138,14 +138,3 @@ def convert_yes_no(value):
         return 0
     else:
         return 1
-
-def main():
-
-    table = remove_incomplete_rows(read_csv('auto-data.txt'))
-    table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
-    naive_bayes(table, [1, 4, 6], 0)
-    knn(table_titanic, [0, 1, 2], 3, 10)
-    naive_bayes_titanic(table_titanic, [0, 1, 2], 3)
-
-if __name__ == '__main__':
-    main()
