@@ -99,13 +99,18 @@ class DisplayTree:
 
 class DecisionTree(DisplayTree, Discretization):
 
-    def __init__(self, training_set, att_indexes, label_index):
+    def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
         Discretization.__init__(self)
         self.training_set = deepcopy(training_set)
         self.training_set = training_set
         self.att_indexes = att_indexes
         self.label_index = label_index
-        self.att_domains = {att: list(set(get_column(self.training_set, att))) for att in att_indexes}
+        self.f = f
+
+        if 'att_domains' in kwargs:
+            self.att_domains = kwargs['att_domains']
+        else:
+            self.att_domains = {att: list(set(get_column(self.training_set, att))) for att in att_indexes}
 
         self.decision_tree = self.tdidt(self.training_set, self.att_indexes)
 
@@ -129,7 +134,11 @@ class DecisionTree(DisplayTree, Discretization):
         else:
 
             indexes = att_indexes[:]
-            part_index = self.select_attribute(instances, indexes)
+
+            if len(indexes) <= self.f:
+                part_index = self.select_attribute(instances, indexes)
+            else:
+                part_index = self.select_attribute(instances, sample(indexes, self.f))
             partitions = self.group_by(instances, part_index)
             indexes.remove(part_index)
 
@@ -257,8 +266,8 @@ class DecisionTree(DisplayTree, Discretization):
 
 class AutoDecisionTree (Discretization, DecisionTree):
 
-    def __init__(self, training_set, att_indexes, label_index):
-        DecisionTree.__init__(self, self.categorize_table(deepcopy(training_set)), att_indexes, label_index)
+    def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
+        DecisionTree.__init__(self, self.categorize_table(deepcopy(training_set)), att_indexes, label_index, f, **kwargs)
         DisplayTree.__init__(self, self.decision_tree, COLUMN_NAMES)
 
 
@@ -285,8 +294,11 @@ class AutoRandomSampling(RandomSampling):
 
 class TitanicDecisionTree(DecisionTree):
 
-    def __init__(self, training_set, att_indexes, label_index):
-        DecisionTree.__init__(self, training_set, att_indexes, label_index)
+    def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
+        # if 'att_domains' in kwargs:
+        #     DecisionTree.__init__(self, training_set, att_indexes, label_index, att_domains=kwargs['att_domains'])
+        # else:
+        DecisionTree.__init__(self, training_set, att_indexes, label_index, f, **kwargs)
         DisplayTree.__init__(self, self.decision_tree, ['Class', 'Age', 'Sex', 'Survived'])
 
     def categorize_instance(self, row):
@@ -340,7 +352,7 @@ def titanic_decision_tree(table, indexes, label_index):  # step 1
 
 
 def convert(value):
-    if value == 0:
+    if value == 1:
         return 'no'
     else:
         return 'yes'
@@ -380,6 +392,14 @@ def auto_decision_tree(table, indexes, label_index):  # step 2
     d.print_if_statements()
 
     d.save_graphviz_tree('trees/auto_data_decision_tree')
+
+
+def count_if(column, label):
+    count = 0
+    for item in column:
+        if str(item) == str(label):
+            count += 1
+    return count
 
 
 def main():
