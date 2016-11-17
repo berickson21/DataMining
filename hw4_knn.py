@@ -1,12 +1,7 @@
 from copy import deepcopy
 from math import sqrt
-from random import sample
 
 from scipy import stats
-
-from hw1 import get_column
-from hw2 import read_csv, remove_incomplete_rows
-from hw3 import classification_map
 
 
 class KnnClassifier:
@@ -18,7 +13,7 @@ class KnnClassifier:
         self.label_index = 3
         self.k = k
 
-    def knn_classifier(self, instance):
+    def classifier(self, instance):
 
         distance = []
         for row in self.training_set:
@@ -33,9 +28,7 @@ class KnnClassifier:
     def dist(self, instance, row):
 
         accumulator = 0
-        # print('Instance: ' + str(instance))
-        # print('Row: ' + str(row))
-        # print('Indexes: ' + str(self.indexes))
+
         for i in self.indexes:
             if instance[i] == row[i]:
                 accumulator += 0
@@ -43,7 +36,6 @@ class KnnClassifier:
                 accumulator += 1
 
         return sqrt(accumulator)
-
 
     def get_label(self, top_k_neighbors):
         for i in top_k_neighbors:

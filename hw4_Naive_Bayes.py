@@ -127,10 +127,10 @@ class NaiveBayesTitanic(NaiveBayes):
 
         self.categorize_table_titanic()
         self.labels = list(set(get_column(self.training_set, self.label_index)))
-        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))\
-            / float(len(training_set))] for label in self.labels]
+        self.initial_probabilities = [[label, len(self.group_by(self.label_index, label))/float(len(training_set))] for label in self.labels]
 
-    def convert(self, val):
+    @staticmethod
+    def convert(val):
 
         if val == 'yes':
             return 0
@@ -140,7 +140,8 @@ class NaiveBayesTitanic(NaiveBayes):
     def classify(self, instance):
         
         inst = deepcopy(instance)
-        # self.categorize_instance_titanic(inst)
+        self.categorize_instance_titanic(inst)
+
         probabilities = deepcopy(self.initial_probabilities)
 
         for i, label in enumerate(self.labels):
@@ -154,8 +155,7 @@ class NaiveBayesTitanic(NaiveBayes):
     def categorize_table_titanic(self):
 
         for row in self.training_set:
-            [self.categorize_instance_titanic(row) for row in self.training_set]
+            self.categorize_instance_titanic(row)
 
     def categorize_instance_titanic(self, row):
-
         row[3] = self.convert(row[3])
