@@ -4,7 +4,7 @@ from hw3 import (print_confusion, print_confusion_titanic, print_double_line,
                  read_csv, remove_incomplete_rows)
 from hw4_knn import KnnClassifier
 from hw4_Naive_Bayes import ContinuousNaiveBayes, NaiveBayes, NaiveBayesTitanic
-from hw4_random_sampling import ContinuousRandomSampling, RandomSampling
+from hw4_random_sampling import ContinuousRandomSampling, RandomSampling, RandomSamplingTitanic
 from hw4_stratified_folds import (ContinuousStratifiedFolds, StratifiedFolds,
                                   StratifiedFoldsKnn, StratifiedFoldsTitanic)
 
@@ -55,16 +55,16 @@ def knn(table, indexes, label_index, k):
     s = StratifiedFoldsKnn(table, indexes, label_index)
     stratified_folds_matrix = s.stratified_k_folds(10)
 
+    random_sampling = RandomSamplingTitanic(table, [0, 1, 2], 3, 10)
+    random_sampling_accuracy = round(random_sampling.random_sampling(),2)
 
-    print_double_line('Step 1b: Predictive Accuracy')
-
-    stratified_folds_accuracy = 1
+    stratified_folds_accuracy = s.get_accuracy_of_confusion(stratified_folds_matrix)[0]
 
     print '\tRandomSubsample(k=10, 2:1 Train / Test)'
-    print '\t\taccuracy = ' + str(1) + ', error rate = ' + str(0)
+    print '\t\taccuracy = ' + str(random_sampling_accuracy) + ', error rate = ' + str(1 - random_sampling_accuracy)
     print '\tStratified 10-Fold Cross Validation'
-    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = '\
-        + str(1 - stratified_folds_accuracy)
+    print '\t\taccuracy = ' + str(stratified_folds_accuracy) + ', error rate = ' + str(1 - stratified_folds_accuracy)
+
 
     print_double_line(' K-nn Confusion Matrix Predictive Accuracy')
 

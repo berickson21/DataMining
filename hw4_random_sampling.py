@@ -2,7 +2,7 @@ from copy import deepcopy
 from random import shuffle
 from hw2 import read_csv, remove_incomplete_rows
 from hw3 import print_confusion
-from hw4_Naive_Bayes import ContinuousNaiveBayes, NaiveBayes
+from hw4_Naive_Bayes import ContinuousNaiveBayes, NaiveBayes, NaiveBayesTitanic
 
 import numpy as numpy
 

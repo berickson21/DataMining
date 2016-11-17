@@ -155,10 +155,8 @@ class StratifiedFoldsKnn(StratifiedFolds):
 
         partition_len = len(new_table)/(k-1)
         partitions = [new_table[i:i + partition_len] for i in range(0, len(new_table), partition_len)]
-
         init = [[0] * self.num_labels] * self.num_labels
         confusion = numpy.matrix(init)
-
         for part in partitions:
             temp = []
             for p in partitions:
