@@ -23,6 +23,7 @@ class Discretization:
     def categorize_instance(self, row):
 
         row[0] = str(self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+        # print self.convert(row[4], [1999, 2499, 2999, 3499])
         row[4] = str(self.convert(row[4], [1999, 2499, 2999, 3499]))
 
     @staticmethod
@@ -99,17 +100,19 @@ class DisplayTree:
 
 class DecisionTree(DisplayTree, Discretization):
 
-    def __init__(self, training_set, att_indexes, label_index):
+    def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
         Discretization.__init__(self)
         self.training_set = deepcopy(training_set)
-        self.training_set = training_set
         self.att_indexes = att_indexes
         self.label_index = label_index
-        self.att_domains = {}
-        self.att_domains = self.get_attribute_domains(self.training_set, self.att_indexes)
+        self.f = f
+
+        if 'att_domains' in kwargs:
+            self.att_domains = kwargs['att_domains']
+        else:
+            self.att_domains = {att: list(set(get_column(self.training_set, att))) for att in att_indexes}
 
         self.decision_tree = self.tdidt(self.training_set, self.att_indexes)
-
 
     # [att_index_a, {value_a1: [att_index_b, {value_b1: yes, value_b2: no}], value_a2: no}]
     def tdidt(self, instances, att_indexes):
@@ -130,7 +133,11 @@ class DecisionTree(DisplayTree, Discretization):
         else:
 
             indexes = att_indexes[:]
-            part_index = self.select_attribute(instances, indexes)
+
+            if len(indexes) <= self.f:
+                part_index = self.select_attribute(instances, indexes)
+            else:
+                part_index = self.select_attribute(instances, sample(indexes, self.f))
             partitions = self.group_by(instances, part_index)
             indexes.remove(part_index)
 
@@ -164,16 +171,6 @@ class DecisionTree(DisplayTree, Discretization):
             if str(item) == str(label):
                 count += 1
         return count
-
-    def get_attribute_domains(self, instances, att_indexes):
-        for index in att_indexes:
-            for row in instances:
-                if self.att_domains.get(index) is None:
-                    self.att_domains[index] = [row[index]]
-                elif self.att_domains.get(index).count(row[index]) == 0:
-                    self.att_domains.get(index).append(row[index])
-
-        return self.att_domains
 
     def group_by(self, instances, index):
 
@@ -268,10 +265,9 @@ class DecisionTree(DisplayTree, Discretization):
 
 class AutoDecisionTree (Discretization, DecisionTree):
 
-    def __init__(self, training_set, att_indexes, label_index):
-        DecisionTree.__init__(self, self.categorize_table(deepcopy(training_set)), att_indexes, label_index)
+    def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
+        DecisionTree.__init__(self, training_set, att_indexes, label_index, f, **kwargs)
         DisplayTree.__init__(self, self.decision_tree, COLUMN_NAMES)
-        self.save_graphviz_tree('auto-data')
 
 
 class AutoStratifiedFolds(StratifiedFolds):
@@ -280,7 +276,7 @@ class AutoStratifiedFolds(StratifiedFolds):
         StratifiedFolds.__init__(self, table, indexes, label_index)
 
     def classification(self, training_set):
-        return AutoDecisionTree(training_set, self.indexes, self.label_index)
+        return AutoDecisionTree(training_set, self.indexes, self.label_index, len(self.indexes))
 
     def categorize_instance(self, row):
         pass
@@ -292,13 +288,14 @@ class AutoRandomSampling(RandomSampling):
         RandomSampling.__init__(self, table, indexes, label_index, k)
 
     def classification(self, training_set):
-        return AutoDecisionTree(training_set, self.indexes, self.label_index)
+        return AutoDecisionTree(training_set, self.indexes, self.label_index, len(self.indexes))
 
 
 class TitanicDecisionTree(DecisionTree):
 
-    def __init__(self, training_set, att_indexes, label_index):
-        DecisionTree.__init__(self, training_set, att_indexes, label_index)
+    def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
+
+        DecisionTree.__init__(self, training_set, att_indexes, label_index, f, **kwargs)
         DisplayTree.__init__(self, self.decision_tree, ['Class', 'Age', 'Sex', 'Survived'])
 
     def categorize_instance(self, row):
@@ -311,14 +308,14 @@ class TitanicStratifiedFolds(StratifiedFoldsKnn):
         StratifiedFoldsKnn.__init__(self, table, indexes, label_index)
 
     def classification(self, training_set):
-        return TitanicDecisionTree(training_set, self.indexes, self.label_index)
+        return TitanicDecisionTree(training_set, self.indexes, self.label_index, len(self.indexes))
 
 
 def titanic_decision_tree(table, indexes, label_index):  # step 1
 
     print_double_line('Titanic Decision Tree Classifier')
 
-    d = TitanicDecisionTree(table, indexes, label_index)
+    d = TitanicDecisionTree(table, indexes, label_index, len(indexes))
 
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
@@ -348,11 +345,11 @@ def titanic_decision_tree(table, indexes, label_index):  # step 1
 
     d.print_if_statements()
 
-    d.save_graphviz_tree('titanic_decision_tree')
+    d.save_graphviz_tree('trees/titanic_decision_tree')
 
 
 def convert(value):
-    if value == 0:
+    if value == 1:
         return 'no'
     else:
         return 'yes'
@@ -361,7 +358,7 @@ def convert(value):
 def auto_decision_tree(table, indexes, label_index):  # step 2
 
     print_double_line('Auto Decision Tree Classifier')
-    d = AutoDecisionTree(table, indexes, label_index)
+    d = AutoDecisionTree(table, indexes, label_index, len(indexes))
 
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
@@ -391,7 +388,15 @@ def auto_decision_tree(table, indexes, label_index):  # step 2
 
     d.print_if_statements()
 
-    d.save_graphviz_tree('auto_data_decision_tree')
+    d.save_graphviz_tree('trees/auto_data_decision_tree')
+
+
+def count_if(column, label):
+    count = 0
+    for item in column:
+        if str(item) == str(label):
+            count += 1
+    return count
 
 
 def main():
@@ -404,3 +409,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
