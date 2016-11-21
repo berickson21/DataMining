@@ -2,7 +2,7 @@ from hw5 import *
 from hw4 import print_confusion_titanic
 from copy import deepcopy
 from random import shuffle, sample, choice
-
+from tabulate import tabulate
 import numpy as numpy
 
 
@@ -24,16 +24,21 @@ class RandomForest:
         self.test = []
         self.partition_data()
 
+        self.n = n
+        self.m = m
         self.f = f  # number of attribute indexes from att_indexes to build trees on
 
         self.initial_forest = [self.build_tree() for _ in range(n)]  # build n instances of tree
         self.initial_forest.sort(key=lambda x: x[1], reverse=True)  # sort trees by accuracy
         self.forest = [tree[0] for tree in self.initial_forest[0:m]]  # take the m most accurate trees
+        self.tree = self.get_normal_tree(self.remainder)
+
+        self.confusion_matrix = None
+        self.accuracy = None
+        self.tree_confusion_matrix = None
+        self.tree_accuracy = None
 
         self.evaluate_ensemble()
-
-        for i, tree in enumerate(self.forest):
-            tree.save_graphviz_tree('trees/tree' + str(i))
 
     def build_tree(self):
 
@@ -49,13 +54,18 @@ class RandomForest:
 
     def evaluate_ensemble(self):
 
-        evaluate = self.evaluate_tree(self, self.training_set)
-        self.print_matrix(evaluate[1])
+        evaluate = self.evaluate_tree(self, self.test)
+        self.confusion_matrix = evaluate[1]
+        self.accuracy = evaluate[0]
+
+        evaluate = self.evaluate_tree(self.tree, self.test)
+        self.tree_confusion_matrix = evaluate[1]
+        self.tree_accuracy = evaluate[0]
 
     def evaluate_tree(self, tree, validation):
         pass
 
-    def print_matrix(self, matrix):
+    def print_matrix(self):
         pass
 
     def get_random_training_set(self):
@@ -87,19 +97,38 @@ class RandomForest:
         self.test = table[partition:]
 
 
-class AutoRandomForrest(RandomForest):
+class AutoRandomForrest(RandomForest, Discretization):
 
     def __init__(self, training_set, att_indexes, label_index, m, n, f):
-        RandomForest.__init__(self, training_set, att_indexes, label_index, m, n, f)
+        RandomForest.__init__(self, self.categorize_table(training_set), att_indexes, label_index, m, n, f)
 
     def get_tree(self, training):
         return AutoDecisionTree(training, self.att_indexes, self.label_indexes, self.f, att_domains=self.att_domains)
 
-    def evaluate_tree(self, tree, validation):
-        pass
+    def get_normal_tree(self, training):
+        return AutoDecisionTree(training, self.att_indexes, self.label_indexes, len(self.att_indexes))
 
-    def print_matrix(self, matrix):
-        print_confusion(matrix)
+    def evaluate_tree(self, tree, validation):
+        init = [[0] * self.num_labels] * self.num_labels
+        confusion = numpy.array(init)
+
+        for instance in validation:
+
+            c = int(tree.classify(instance)) - 1
+
+            r = int(instance[self.label_indexes]) - 1
+
+            confusion[r][c] += 1
+
+        matrix = numpy.matrix(confusion).tolist()
+
+        return get_accuracy_of_confusion(matrix)[0], matrix
+
+    def print_matrix(self):
+        print_confusion(self.confusion_matrix)
+
+    def print_individual_matrix(self):
+        print_confusion(self.tree_confusion_matrix)
 
 
 class TitanicRandomForrest(RandomForest):
@@ -109,6 +138,9 @@ class TitanicRandomForrest(RandomForest):
 
     def get_tree(self, training):
         return TitanicDecisionTree(training, self.att_indexes, self.label_indexes, self.f, att_domains=self.att_domains)
+
+    def get_normal_tree(self, training):
+        return TitanicDecisionTree(training, self.att_indexes, self.label_indexes, len(self.att_indexes))
 
     def evaluate_tree(self, tree, validation):
 
@@ -129,47 +161,101 @@ class TitanicRandomForrest(RandomForest):
 
         return get_accuracy_of_confusion(matrix)[0], matrix
 
-    def print_matrix(self, matrix):
-        print_confusion_titanic(matrix)
+    def print_matrix(self):
+        print_confusion_titanic(self.confusion_matrix)
+
+    def print_individual_matrix(self):
+        print_confusion_titanic(self.tree_confusion_matrix)
 
 
-class CancerRandomForrest(RandomForest):
+class WisconsinRandomForrest(RandomForest):
 
     def __init__(self, training_set, att_indexes, label_index, m, n, f):
         RandomForest.__init__(self, training_set, att_indexes, label_index, m, n, f)
 
     def get_tree(self, training):
-        pass
+        return WisconsinDecisionTree(training, self.att_indexes, self.label_indexes, self.f, att_domains=self.att_domains)
+
+    def get_normal_tree(self, training):
+        return WisconsinDecisionTree(training, self.att_indexes, self.label_indexes, len(self.att_indexes))
 
     def evaluate_tree(self, tree, validation):
-        pass
+        init = [[0] * self.num_labels] * self.num_labels
+        confusion = numpy.array(init)
 
-    def print_matrix(self, matrix):
-        pass
+        for instance in validation:
+
+            c = 0
+            if int(tree.classify(instance)) == 2:
+                c = 1
+            r = 0
+            if int(instance[self.label_indexes]) == 2:
+                r = 1
+
+            confusion[r][c] += 1
+
+        matrix = numpy.matrix(confusion).tolist()
+
+        return get_accuracy_of_confusion(matrix)[0], matrix
+
+    @staticmethod
+    def print_matrix_wisconsin(matrix):
+
+        accuracies = get_accuracy_of_confusion(matrix)[1]
+
+        for i, row in enumerate(matrix):
+            if i == 0:
+                row.insert(0, 'benign')
+            else:
+                row.insert(0, 'malignant')
+            row.append(sum(row[1:]))
+            row.append(round(accuracies[i], 2))
+
+        headers = ['Tumor', 'benign', 'malignant', 'Total', 'Recognition(%)']
+
+        print tabulate(matrix, headers=headers, tablefmt="rst")
+
+    def print_matrix(self):
+        self.print_matrix_wisconsin(self.confusion_matrix)
+
+    def print_individual_matrix(self):
+        self.print_matrix_wisconsin(self.tree_confusion_matrix)
 
 
-def titanic_decision_tree(table, indexes, label_index, m, n, f):  # step 1
+class WisconsinDecisionTree(DecisionTree):
 
-    print_double_line('Titanic Random Forest Classifier')
+    def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
+        DecisionTree.__init__(self, training_set, att_indexes, label_index, f, **kwargs)
 
-    d = TitanicRandomForrest(table, indexes, label_index, m, n, f)
+        column_names = ['clump thickness', 'cell size', 'cell shape', 'marginal adhesion', 'epithelial size',
+                        'bare nuclei', 'bland chromatin', 'normal nucleoli', 'mitoses', 'tumor']
 
-    for instance in sample(table, 5):
-        print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(convert(d.classify(instance))) + ' actual: '\
-            + str(instance[3])
+        DisplayTree.__init__(self, self.decision_tree, column_names)
+
+    def categorize_instance(self, row):
+        return None
 
 
-def auto_decision_tree(table, indexes, label_index, m, n, f):  # step 1
+def random_forrest(classifier, class_name):
 
-    print_double_line('Auto Data Random Forest Classifier')
+    print_double_line(class_name + ' Random Forest Classifier')
 
-    d = AutoRandomForrest(table, indexes, label_index, m, n, f)
+    tree_accuracy = classifier.tree_accuracy
 
-    for instance in sample(table, 5):
-        print '\tinstance: ' + str(instance)
-        print '\tclass: ' + str(convert(d.classify(instance))) + ' actual: '\
-            + str(instance[3])
+    print_double_line(class_name + ' Individual Tree Confusion Matrix')
+    classifier.print_individual_matrix()
+
+    print_double_line(class_name + ' Random Forrest Confusion Matrix:  n = ' + str(classifier.n) + ' m = ' + str(classifier.m)
+                      + ' f = ' + str(classifier.f))
+    classifier.print_matrix()
+
+    print_double_line(class_name + ' Predictive accuracy: n = ' + str(classifier.n) + ' m = ' + str(classifier.m)
+                      + ' f = ' + str(classifier.f))
+
+    print '\tRandom Forrest'
+    print '\t\tAccuracy: ' + str(classifier.accuracy)
+    print '\tIndividual Tree'
+    print '\t\tAccuracy: ' + str(tree_accuracy)
 
 
 def get_accuracy_of_confusion(matrix):
@@ -188,9 +274,12 @@ def get_accuracy_of_confusion(matrix):
 def main():
 
     table = remove_incomplete_rows(read_csv('titanic.txt')[1:])
-    titanic_decision_tree(table, [0, 1, 2], 3, 20, 7, 2)
+    random_forrest(TitanicRandomForrest(table, [0, 1, 2], 3, 20, 5, 2), 'Titanic')
 
-    autoTable = remove_incomplete_rows(read_csv('auto-data.txt'))
+    auto_table = remove_incomplete_rows(read_csv('auto-data.txt'))
+    random_forrest(AutoRandomForrest(auto_table, [1, 4, 6], 0, 20, 7, 2), 'Auto Data')
 
+    wisconsin_table = remove_incomplete_rows(read_csv('wisconsin.txt'))
+    random_forrest(WisconsinRandomForrest(wisconsin_table, [0, 1, 2, 3, 4, 5, 6, 7, 8], 9, 20, 7, 3), 'Wisconsin')
 
 main()

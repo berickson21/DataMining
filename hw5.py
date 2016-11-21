@@ -23,6 +23,7 @@ class Discretization:
     def categorize_instance(self, row):
 
         row[0] = str(self.convert(row[0], [13, 14, 16, 19, 23, 26, 30, 36, 44]))
+        # print self.convert(row[4], [1999, 2499, 2999, 3499])
         row[4] = str(self.convert(row[4], [1999, 2499, 2999, 3499]))
 
     @staticmethod
@@ -102,7 +103,6 @@ class DecisionTree(DisplayTree, Discretization):
     def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
         Discretization.__init__(self)
         self.training_set = deepcopy(training_set)
-        self.training_set = training_set
         self.att_indexes = att_indexes
         self.label_index = label_index
         self.f = f
@@ -113,7 +113,6 @@ class DecisionTree(DisplayTree, Discretization):
             self.att_domains = {att: list(set(get_column(self.training_set, att))) for att in att_indexes}
 
         self.decision_tree = self.tdidt(self.training_set, self.att_indexes)
-
 
     # [att_index_a, {value_a1: [att_index_b, {value_b1: yes, value_b2: no}], value_a2: no}]
     def tdidt(self, instances, att_indexes):
@@ -267,7 +266,7 @@ class DecisionTree(DisplayTree, Discretization):
 class AutoDecisionTree (Discretization, DecisionTree):
 
     def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
-        DecisionTree.__init__(self, self.categorize_table(deepcopy(training_set)), att_indexes, label_index, f, **kwargs)
+        DecisionTree.__init__(self, training_set, att_indexes, label_index, f, **kwargs)
         DisplayTree.__init__(self, self.decision_tree, COLUMN_NAMES)
 
 
@@ -277,7 +276,7 @@ class AutoStratifiedFolds(StratifiedFolds):
         StratifiedFolds.__init__(self, table, indexes, label_index)
 
     def classification(self, training_set):
-        return AutoDecisionTree(training_set, self.indexes, self.label_index)
+        return AutoDecisionTree(training_set, self.indexes, self.label_index, len(self.indexes))
 
     def categorize_instance(self, row):
         pass
@@ -289,15 +288,13 @@ class AutoRandomSampling(RandomSampling):
         RandomSampling.__init__(self, table, indexes, label_index, k)
 
     def classification(self, training_set):
-        return AutoDecisionTree(training_set, self.indexes, self.label_index)
+        return AutoDecisionTree(training_set, self.indexes, self.label_index, len(self.indexes))
 
 
 class TitanicDecisionTree(DecisionTree):
 
     def __init__(self, training_set, att_indexes, label_index, f, **kwargs):
-        # if 'att_domains' in kwargs:
-        #     DecisionTree.__init__(self, training_set, att_indexes, label_index, att_domains=kwargs['att_domains'])
-        # else:
+
         DecisionTree.__init__(self, training_set, att_indexes, label_index, f, **kwargs)
         DisplayTree.__init__(self, self.decision_tree, ['Class', 'Age', 'Sex', 'Survived'])
 
@@ -311,14 +308,14 @@ class TitanicStratifiedFolds(StratifiedFoldsKnn):
         StratifiedFoldsKnn.__init__(self, table, indexes, label_index)
 
     def classification(self, training_set):
-        return TitanicDecisionTree(training_set, self.indexes, self.label_index)
+        return TitanicDecisionTree(training_set, self.indexes, self.label_index, len(self.indexes))
 
 
 def titanic_decision_tree(table, indexes, label_index):  # step 1
 
     print_double_line('Titanic Decision Tree Classifier')
 
-    d = TitanicDecisionTree(table, indexes, label_index)
+    d = TitanicDecisionTree(table, indexes, label_index, len(indexes))
 
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
@@ -361,7 +358,7 @@ def convert(value):
 def auto_decision_tree(table, indexes, label_index):  # step 2
 
     print_double_line('Auto Decision Tree Classifier')
-    d = AutoDecisionTree(table, indexes, label_index)
+    d = AutoDecisionTree(table, indexes, label_index, len(indexes))
 
     for instance in sample(table, 5):
         print '\tinstance: ' + str(instance)
@@ -412,3 +409,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
