@@ -50,7 +50,8 @@ class RandomForest:     # Step 1
 
         matrix = evaluate[1]
 
-        track = {label: [item/float(sum(get_column(matrix, i))+.0001) for item in get_column(matrix, i)] for i, label in enumerate(self.labels)}
+        track = {label: [item/float(sum(get_column(matrix, i))+.0001) for item in get_column(matrix, i)]
+                 for i, label in enumerate(self.labels)}
 
         return [tree, evaluate[0], track]
 
@@ -395,8 +396,8 @@ def random_forrest(classifier, class_name):
     print_double_line(class_name + ' Individual Tree Confusion Matrix')
     classifier.print_individual_matrix()
 
-    print_double_line(class_name + ' Random Forrest Confusion Matrix:  n = ' + str(classifier.n) + ' m = ' + str(classifier.m)
-                      + ' f = ' + str(classifier.f))
+    print_double_line(class_name + ' Random Forrest Confusion Matrix:  n = ' + str(classifier.n) +
+                      ' m = ' + str(classifier.m) + ' f = ' + str(classifier.f))
     classifier.print_matrix()
 
     print_double_line(class_name + ' Predictive accuracy: n = ' + str(classifier.n) + ' m = ' + str(classifier.m)
@@ -437,6 +438,7 @@ def main():
     # Extra Credit
     random_forrest(TitanicRandomForrestTrackRecord(table, [0, 1, 2], 3, 20, 7, 2), 'Track Record Titanic')
     random_forrest(AutoRandomForrestTrackRecord(auto_table, [1, 4, 6], 0, 20, 7, 2), 'Track Record Auto Data')
-    random_forrest(WisconsinRandomForrestTrackRecord(wisconsin_table, [i for i in range(8)], 9, 20, 7, 3), 'Track Record Wisconsin')
+    random_forrest(WisconsinRandomForrestTrackRecord(wisconsin_table, [i for i in range(8)]
+                                                     , 9, 20, 7, 3), 'Track Record Wisconsin')
 
 main()
