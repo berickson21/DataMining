@@ -285,7 +285,7 @@ def holdout_partition_knn(table, xIndex, yIndex, k):
 
 
 def print_double_line(string):
-    print '\n=========================================== \n' + string + '\n===========================================\n'
+    print '\n' + '='*len(string) + '\n' + string + '\n' + '='*len(string) + '\n'
 
 
 def confusion_matrix(table, xIndex, yIndex, k):  # Step 4
