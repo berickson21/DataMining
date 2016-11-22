@@ -398,15 +398,3 @@ def count_if(column, label):
             count += 1
     return count
 
-
-def main():
-
-    table = remove_incomplete_rows(read_csv('auto-data.txt'))
-    table_titanic = remove_incomplete_rows(read_csv('titanic.txt')[1:])
-
-    titanic_decision_tree(table_titanic, [0, 1,  2], 3)
-    auto_decision_tree(table, [1, 4, 6], 0)
-
-if __name__ == '__main__':
-    main()
-
