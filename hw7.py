@@ -25,12 +25,8 @@ class Apriori:
         self.item_set = []
         self.generate_l_k(self.l1)
 
-        print 'l1'
-
         self.rules = []
         self.create_rules()
-
-        print 'rules'
 
         self.print_rules()
 
@@ -152,7 +148,7 @@ def main():
     print_double_line('Titanic Association Rules')
 
     table = remove_incomplete_rows(read_csv('titanic.txt')[1:])
-    a = Apriori(table, 0.1, 0.80, ['class', 'age', 'sex', 'survived'])
+    a = Apriori(table, 0.20, 0.80, ['class', 'age', 'sex', 'survived'])
 
     print_double_line('Mushroom Association Rules')
 
@@ -162,6 +158,6 @@ def main():
                     'veil-color', 'ring-number', 'ring-type', 'spore-print-color', 'population', 'habitat']
 
     table = remove_incomplete_rows(read_csv('agaricus-lepiota.txt'))
-    a = Apriori(table, 0.1, 0.80, column_names)
+    a = Apriori(table, 0.99, 0.80, column_names)
 
 main()
