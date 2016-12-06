@@ -3,6 +3,8 @@ from copy import deepcopy
 from operator import itemgetter
 from tabulate import tabulate
 
+import sys
+
 
 class Apriori:
 
@@ -23,8 +25,12 @@ class Apriori:
         self.item_set = []
         self.generate_l_k(self.l1)
 
+        print 'l1'
+
         self.rules = []
         self.create_rules()
+
+        print 'rules'
 
         self.print_rules()
 
@@ -89,7 +95,8 @@ class Apriori:
 
     # returns true if all k-1 subsets are in the initial list; otherwise, false.
     def check_k_minus_1(self, initial_list, items):
-        return self.check_items_in_list(initial_list, sorted([items[0:i] + items[i+1:] for i in range(len(items))], key=itemgetter(0)))
+        return self.check_items_in_list(initial_list, sorted([items[0:i] + items[i+1:] for i in range(len(items))],
+                                                             key=itemgetter(0)))
 
     # recursive helper function for check k_minus_1
     def check_items_in_list(self, initial_list, k_minus_1):
@@ -102,14 +109,8 @@ class Apriori:
     # returns candidate list (c_k) from the initial list
     def create_c_k(self, initial_list, candidate, left, right):
 
-        if len(right) == 0:
-            pass
-        else:
-            if len(right) == 1:
-                self.add_to_c_k(initial_list, candidate, left, right[0])
-            else:
-                self.add_to_c_k(initial_list, candidate, left, right[0])
-                self.create_c_k(initial_list, candidate, left, right[1:])
+        for item in right:
+            self.add_to_c_k(initial_list, candidate, left, item)
 
     # adds item to the candidate list if all k-1 subsets are supported in the initial_list
     def add_to_c_k(self, initial_list, candidate, left, right):
@@ -124,17 +125,17 @@ class Apriori:
 
     @staticmethod
     def check_index(item_set, num):
-         return len(set([index for index in get_column(item_set, 1)])) == (num + 1)
+        return len(set([index for index in get_column(item_set, 1)])) == (num + 1)
 
     # returns true if all items in items are contained in item_set; otherwise, false.
-    def contains(self, items, item_set):
+    @staticmethod
+    def contains(items, item_set):
 
-        if len(items) == 0:
-            return True
-        elif len(items) == 1:
-            return items[0][0] == item_set[items[0][1]]
-        else:
-            return items[0][0] == item_set[items[0][1]] and self.contains(items[1:], item_set)
+        for item in items:
+            if item_set[item[1]] != item[0]:
+                return False
+
+        return True
 
     # returns support count(left U right)/count(n)
     def get_support(self, items):
@@ -150,15 +151,15 @@ def main():
 
     print_double_line('Titanic Association Rules')
 
-    # table = remove_incomplete_rows(read_csv('titanic.txt')[1:])
-    # a = Apriori(table, 0.1, 0.80, ['class', 'age', 'sex', 'survived'])
+    table = remove_incomplete_rows(read_csv('titanic.txt')[1:])
+    a = Apriori(table, 0.1, 0.80, ['class', 'age', 'sex', 'survived'])
 
     print_double_line('Mushroom Association Rules')
 
     column_names = ['class', 'cap-shape', 'cap-surface', 'cap-color', 'bruises', 'odor', 'gill-attachment',
-                    'gill-spacing','gill-size','gill-color', 'stalk-shape', 'stalk-root', 'stalk-surface-above-ring',
-                    'stalk-surface-below-ring','stalk-color-above-ring', 'stalk-color-below-ring', 'veil-type',
-                    'veil-color', 'ring-number', 'ring-type','spore-print-color', 'population', 'habitat']
+                    'gill-spacing', 'gill-size', 'gill-color', 'stalk-shape', 'stalk-root', 'stalk-surface-above-ring',
+                    'stalk-surface-below-ring', 'stalk-color-above-ring', 'stalk-color-below-ring', 'veil-type',
+                    'veil-color', 'ring-number', 'ring-type', 'spore-print-color', 'population', 'habitat']
 
     table = remove_incomplete_rows(read_csv('agaricus-lepiota.txt'))
     a = Apriori(table, 0.1, 0.80, column_names)
