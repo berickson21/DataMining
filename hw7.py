@@ -44,7 +44,7 @@ class Apriori:
         items = left_side + right_side
 
         combinations = [[left_side[0:i] + left_side[i + 1:], right + [left_side[i]], support,
-                         self.get_confidence(left_side[0:i] + left_side[i + 1:], items)] for i in range(len(left_side))]
+                         self.get_confidence(left_side[0:i] + left_side[i + 1:], items), self.get_lift(left_side, right_side)] for i in range(len(left_side))]
 
         for row in combinations:
             if row[3] >= self.min_confidence and len(row[0]) > 0:
@@ -64,7 +64,7 @@ class Apriori:
             for item in row[1]:
                 string += str(self.column_names[item[1]]) + '=' + item[0] + ' '
 
-            rules.append([i+1, string, row[2], row[3], 'lift'])
+            rules.append([i+1, string, row[2], row[3], row[4]])
 
         headers = ['#', 'association rule', 'support', 'confidence', 'lift']
 
@@ -141,6 +141,9 @@ class Apriori:
     def get_confidence(self, left, items):
         return len([row for row in self.table if self.contains(items, row)]) / \
                float(len([row for row in self.table if self.contains(left, row)]))
+
+    def get_lift(self, left, right):
+        return self.get_support(left+right)/(float(self.get_support(left) * self.get_support(right)))
 
 
 def main():
